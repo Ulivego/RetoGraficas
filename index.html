@@ -42,6 +42,13 @@
             // MODELS
             const scenary = new Scenary();
 
+            const semaforos = [];
+            this.semaforos.push(new Semaforo(0, -30, 0));
+            this.semaforos.push(new Semaforo(0, 30, 180));
+            this.semaforos.push(new Semaforo(30, 0, 270));
+            this.semaforos.push(new Semaforo(-30, 0, 90));
+
+
             // SCENE GRAPH
             scene.add(scenary);
 
@@ -118,8 +125,20 @@
                         car.setDirection(dir);
                     } else {
                         console.log("Error")
-                    }
+                    } 
+                }
+                for (let j = 0; j < data.frames[k].trafficLights.length; j++){
+                    const state = data.frames[k].trafficLights[i].state;
                     
+                    if (state == 1) {
+                        semaforos[j].setColor('#008000');
+                    }else {
+                        if (state == 0) {
+                            semaforos[j].setColor('#FF0000');
+                        }else {
+                            semaforos[j].setColor('#FF0000');
+                        }
+                    }
                 }
            };
         }
@@ -540,11 +559,6 @@
                 this.semaforos = [];
                 this.showWireframe = false
 
-                this.semaforos.push(new Semaforo(0, -30, 0));
-                this.semaforos.push(new Semaforo(0, 30, 180));
-                this.semaforos.push(new Semaforo(30, 0, 270));
-                this.semaforos.push(new Semaforo(-30, 0, 90));
-
                 //SE
                 this.buildings.push(new Building(35, 35));
                 this.buildings.push(new Building(35, 90));
@@ -601,9 +615,6 @@
                 this.add(this.floor);
                 for(let i = 0; i < this.buildings.length; i++) {
                     this.add(this.buildings[i]);
-                }
-                for(let i = 0; i < this.semaforos.length; i++) {
-                    this.add(this.semaforos[i]);
                 }
             }
             changeWireframe(value = false) {
