@@ -43,15 +43,19 @@
             const scenary = new Scenary();
 
             const semaforos = [];
-            this.semaforos.push(new Semaforo(0, -30, 0));
-            this.semaforos.push(new Semaforo(0, 30, 180));
-            this.semaforos.push(new Semaforo(30, 0, 270));
-            this.semaforos.push(new Semaforo(-30, 0, 90));
+            semaforos.push(new Semaforo(0, -30, 0));
+            semaforos.push(new Semaforo(0, 30, 180));
+            semaforos.push(new Semaforo(30, 0, 270));
+            semaforos.push(new Semaforo(-30, 0, 90));
+
+            
 
 
             // SCENE GRAPH
             scene.add(scenary);
-
+            for(let i = 0; i < semaforos.length; i++) {
+                    scene.add(semaforos[i]);
+            }
             // CAMERA (PERSPECTIVE)
             const fov = 60;    // Field ov view
             const aspect = window.innerWidth / window.innerHeight;

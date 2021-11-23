@@ -82,7 +82,7 @@ strFile += """
             "x": 0,
             "z": 30
         },
-        "state": 1   
+        "state": 0   
         },
         {
         "id": 2,
@@ -91,7 +91,7 @@ strFile += """
             "x": 30,
             "z": 0
         },
-        "state": 1   
+        "state": 0   
         },
         {
         "id": 3,
@@ -100,15 +100,46 @@ strFile += """
             "x": -30,
             "z": 0
         },
-        "state": 1   
+        "state": 0   
         }],
     """
+
+seg = 0
+tLights = [1, 0, 0, 0]
+lightGreen = 0
 
 for i in range(401):
     frames += """{
             "frame": """ + str(i) + """,
-            "cars": ["""
+            "trafficLights": ["""
+    
+    #Tiempos en los que se cambia el semáforo
+    if (seg < 15):
+        tLights[lightGreen] = 1
+    elif (seg < 20):
+        tLights[lightGreen] = 2
+    elif (seg == 20):
+        tLights[lightGreen] = 0
+        if lightGreen < 3:
+            lightGreen = 0
+        else:
+            lightGreen += 1
+        seg = 0
+
+    #Texto para el json de los semáforos
+    for m in range(4):
+        frames += """{
+                     "id": """ + str(m) + """,
+                     "state": """ + str(tLights[m]) + """
+                     }"""
+        if m < 3:
+            frames += ","
+        
+
     index = 0
+
+    frames += """,
+    "cars": ["""
     for j in dataCarsLeft:
         frames += """{
                     "id": """ + str(j[0]) + """,
@@ -154,6 +185,8 @@ for i in range(401):
     }"""
     if i < 400:
         frames += ","
+
+    seg += 1
 
 strFile += frames + "]}"
 file.write(strFile)
