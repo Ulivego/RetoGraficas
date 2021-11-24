@@ -150,19 +150,21 @@
                 for (let j = 0; j < data.frames[k].trafficLights.length; j++){
                     const state = data.frames[k].trafficLights[j].state;
                     
-                    if (state == 1) {
+                    if (state == 0) { //green
                         semaforos[j].green.material.color.setHex(0x0a6104);
                         semaforos[j].red.material.color.setHex(0x242020);
                         semaforos[j].yellow.material.color.setHex(0x242020);
-                    }else if (state == 0) {
-                        semaforos[j].red.material.color.setHex(0xff0019);
-                        semaforos[j].green.material.color.setHex(0x242020);
-                        semaforos[j].yellow.material.color.setHex(0x242020);
-                    }else {
-                        console.log(semaforos[j])
+                    }else if (state == 1) { //yellow
+                        console.log(semaforos[j]);
                         semaforos[j].red.material.color.setHex(0x242020);
                         semaforos[j].green.material.color.setHex(0x242020);
                         semaforos[j].yellow.material.color.setHex(0xfffb00);
+                    }else { //red
+                        /*
+                        semaforos[j].red.material.color.setHex(0xff0019);
+                        semaforos[j].green.material.color.setHex(0x242020);
+                        semaforos[j].yellow.material.color.setHex(0x242020);
+                        */
                     }
                 }
                 
