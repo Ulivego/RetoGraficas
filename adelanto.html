@@ -43,14 +43,14 @@
             // MODELS
             const scenary = new Scenary();
 
+            /*
             semaforos.push(new Semaforo(-4, 0, 270));
             semaforos.push(new Semaforo(4, 0, 90));
+            */
 
             // SCENE GRAPH
             scene.add(scenary);
-            for(let i = 0; i < semaforos.length; i++) {
-                    scene.add(semaforos[i]);
-            }
+
             // CAMERA (PERSPECTIVE)
             const fov = 60;    // Field ov view
             const aspect = window.innerWidth / window.innerHeight;
@@ -84,8 +84,25 @@
             readTextFile("/testData.json", function(text) {
                 data = JSON.parse(text);
                 instantiateSportsCar();
+                instantiateTrafficLights();
                 dataReady = true;
+                for(let i = 0; i < semaforos.length; i++) {
+                    scene.add(semaforos[i]);
+                }
             });
+
+            function instantiateTrafficLights() {
+                for (let trafLight of data.trafficLights){
+                    let trafLightID = trafLight.id;
+                    let trafLightX = trafLight.x;
+                    let trafLightZ = trafLight.z;
+                    let trafLightState = trafLight.state;
+                    let trafLightDir = trafLight.dir;
+                    let trafficLight = new Semaforo(trafLightID, trafLightX, trafLightZ, trafLightState, trafLightDir);
+                    trafficLight.name = trafLightID;
+                    semaforos.push(trafficLight);
+                }
+            }
 
             function instantiateSportsCar() {
                 for (let car of data.cars){
@@ -473,10 +490,11 @@
         }
 
         class Semaforo extends THREE.Group {
-            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/objetos/traffic-light-original/traffic-light.obj") {
+            constructor(x = 0, z = 0, state = 0, dir = 0, objFileName = "./assets/objetos/traffic-light-original/traffic-light.obj") {
                 super();
                 this.x = x;
                 this.z = z;
+                this.state = state;
                 this.position.set(x, 0, z);
                 this.color = 0x242020;
                 this.wireColor = 0xffffff;
