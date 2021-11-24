@@ -473,12 +473,12 @@
         }
 
         class Semaforo extends THREE.Group {
-            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/trafficlight.obj") {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/objetos/traffic-light-original/traffic-light.obj") {
                 super();
                 this.x = x;
                 this.z = z;
                 this.position.set(x, 0, z);
-                this.color = 0xcc0000;
+                this.color = 0x242020;
                 this.wireColor = 0xffffff;
                 this.doubleSide = false;
                 this.rotate = false;
@@ -514,6 +514,18 @@
                                 object.traverse(function(child) {
                                     if (child.isMesh) {
                                         child.material = new THREE.MeshBasicMaterial({color: model.color});
+                                        // Abajo
+                                        if (child.name == "group1 pSphere1"){
+                                            child.material.color.setHex(0x0a6104);
+                                        }
+                                        // Medio
+                                        if (child.name == "group1 pSphere2"){
+                                            child.material.color.setHex(0xfffb00);
+                                        }
+                                        // Medio
+                                        if (child.name == "group1 pSphere3"){
+                                            child.material.color.setHex(0xff0019);
+                                        }
                                     }
                                 });
                                 model.solid = object;
