@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html, body
+        {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+      </style>
+</head>
+<body>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+        import Stats from "https://unpkg.com/three/examples/jsm/libs/stats.module.js";
+        import {OrbitControls} from "https://unpkg.com/three@0.119.0/examples/jsm/controls/OrbitControls.js";
+        import {OBJLoader} from 'https://cdn.jsdelivr.net/npm/three@0.117.1/examples/jsm/loaders/OBJLoader.js';
+
+        "use strict";
+
+        let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data;
+        let semaforos = [];
+        
+        function init(event) {
+            // RENDERER ENGINE
+            renderer = new THREE.WebGLRenderer({antialias: true});
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+            renderer.setClearColor(new THREE.Color(0, 0, 0));
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+            
+            // SCENE
+            scene = new THREE.Scene();
+
+            // MODELS
+            const scenary = new Scenary();
+
+            semaforos.push(new Semaforo(-4, 0, 270));
+            semaforos.push(new Semaforo(4, 0, 90));
+
+            // SCENE GRAPH
+            scene.add(scenary);
+            for(let i = 0; i < semaforos.length; i++) {
+                    scene.add(semaforos[i]);
+            }
+            // CAMERA (PERSPECTIVE)
+            const fov = 60;    // Field ov view
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.01;
+            const far = 10000.0;
+            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+            camera.position.set(-100, 100, 300);
+            // CAMERA CONTROLS
+            orbitControls = new OrbitControls(camera, renderer.domElement);
+            //orbitControls.target = model.position;
+            orbitControls.update();
+
+            // SETUP STATS
+            stats = new Stats();
+            stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+            document.body.appendChild(stats.dom);
+
+            // GUI
+            gui = new dat.GUI();
+            // SCENE-MENU
+            const guiSceneMenu = gui.addFolder("Scene Menu");
+            guiSceneMenu.add(scenary.axes, "visible").setValue(scenary.axes.visible).name("World Axes").listen().onChange(function(value) {
+                scenary.axes.setVisible(value);
+            });
+            guiSceneMenu.add(scenary, "showWireframe").setValue(scenary.showWireframe).name("Wireframe").listen().onChange(function(value) {
+                scenary.changeWireframe(value);
+            });
+            guiSceneMenu.open();
+
+            // READ JSON FILE
+            readTextFile("/testData.json", function(text) {
+                data = JSON.parse(text);
+                instantiateSportsCar();
+                dataReady = true;
+            });
+
+            function instantiateSportsCar() {
+                for (let car of data.cars){
+                    let carID = car.id;
+                    let carX = car.origin.x;
+                    let carZ = car.origin.z;
+                    let sportsCar = new SportsCar(carX, carZ);
+                    sportsCar.name = carID;
+                    scene.add(sportsCar);
+                }
+            };
+
+            // DRAW SCENE IN A RENDER LOOP (ANIMATION)
+            renderLoop();
+        }
+
+        function renderLoop() {
+            stats.begin();
+            renderer.render(scene, camera); // DRAW THE SCENE GRAPH
+            updateScene();
+            stats.end();
+            requestAnimationFrame(renderLoop);
+        }
+
+        function updateScene() {
+           if (dataReady){
+               k = (k + 1) % data.frames.length;
+                for (let i = 0; i < data.frames[k].cars.length; i++){
+                    const carID = data.frames[k].cars[i].id;
+                    const x = data.frames[k].cars[i].x;
+                    const z = data.frames[k].cars[i].z;
+                    const dir = data.frames[k].cars[i].dir;
+                    let car = scene.getObjectByName(carID);
+                    if (car) {
+                        car.setPosition(x, z);
+                        car.setDirection(dir);
+                    } else {
+                        console.log("Error")
+                    } 
+                }
+                
+                for (let j = 0; j < data.frames[k].trafficLights.length; j++){
+                    const state = data.frames[k].trafficLights[j].state;
+                    /*
+                    if (state == 1) {
+                        semaforos[j].setColor('#008000');
+                    }else {
+                        if (state == 0) {
+                            semaforos[j].setColor('#FF0000');
+                        }else {
+                            semaforos[j].setColor('#FF0000');
+                        }
+                    }
+                    */
+                }
+                
+           };
+        }
+
+        function readTextFile(file, callback) {
+            var rawFile = new XMLHttpRequest();
+            rawFile.overrideMimeType("application/json");
+            rawFile.open("GET", file, true);
+            rawFile.onreadystatechange = function() {
+                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                    callback(rawFile.responseText);
+                }
+            }
+            rawFile.send(null);
+        }
+
+        // EVENT LISTENERS & HANDLERS
+        document.addEventListener("DOMContentLoaded", init);
+
+        window.addEventListener("resize", () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);            
+        }, false);
+
+        class Axes extends THREE.AxesHelper {
+            constructor(size = 10, visible = true) {
+                super(size);
+                this.size = size;
+                this.visible = visible;
+                this.position.set(0, 1, 0);
+            }
+            setVisible(value) {
+                this.visible = value;
+            }
+        }
+
+        class Floor extends THREE.Group {
+            constructor(size = 100) {
+                super();
+                this.size = size;
+                const geometry = new THREE.PlaneGeometry(size, size);
+                const material = new THREE.MeshBasicMaterial({color: 0x808080});
+                this.mesh = new THREE.Mesh(geometry, material);
+                this.mesh.rotation.x = -Math.PI / 2;
+                this.gridHelper = new THREE.GridHelper(size, 10, 0xff0000, 0x000000);
+                // CHILDREN
+                this.add(this.mesh);
+                this.add(this.gridHelper);
+            }
+            setVisible(value = true) {
+                this.visible = value;
+            }
+            setWireframe(value = true) {
+                this.material.wireframe = value;
+            }
+            setColor(color) {
+                this.mesh.material.color.setHex(color);
+            }
+        }
+
+        class Cube extends THREE.Group {
+            constructor(size = 1, color = 0xcc0000, wireColor = 0xffffff) {
+                super();
+                this.size = size;
+                this.color = color;
+                this.wireColor = wireColor;
+                this.doubleSide = false;
+                this.rotate = false;
+                const geometry = new THREE.BoxGeometry(size, size, size);
+                const material = new THREE.MeshBasicMaterial({color});
+                const materialWire = new THREE.MeshBasicMaterial({wireframe: true, color: wireColor});
+                this.solid = new THREE.Mesh(geometry, material);
+                this.wire = new THREE.Mesh(geometry, materialWire);
+                // CHILDREN
+                this.add(this.solid);
+                this.add(this.wire);
+            }
+            setWireframe(value = true) {
+                this.solid.setVisible(value);
+            }
+            setColor(hexColor) {
+                this.color = hexColor;
+                this.solid.material.color.setHex(hexColor);
+            }
+            setWireColor(hexColor) {
+                this.wireColor = hexColor;
+                this.wire.material.color.setHex(hexColor);
+            }
+            setDoubleSide(value) {
+                this.doubleSide = value;
+                if(value) {
+                    this.solid.material.side = THREE.DoubleSide;
+                } else {
+                    this.solid.material.side = THREE.FrontSide;
+                }
+            }
+            setOnFloor() {
+                this.solid.geometry.computeBoundingBox();
+                const bBox = this.solid.geometry.boundingBox;
+                this.position.y = -bBox.min.y;
+            }
+        }
+
+        class SportsCar extends THREE.Group {
+            constructor(x = 0, z = 0, objFileName = "./assets/Car.obj") {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, 0, z);
+                this.color = 0xcc0000;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = 0;
+                this.rotation.y = 0;
+            }
+            setPosition(x, z) {
+                this.x = x;
+                this.z = z;
+                this.position.set(x, 0, z);
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                const model = this;
+                loader.load(objFileName,
+                            // called when resource is loaded
+                            function (object) { 
+                                // SOLID
+                                object.traverse(function(child) {
+                                    if (child.isMesh) {
+                                        child.material = new THREE.MeshBasicMaterial({color: model.color});
+                                    }
+                                });
+                                model.solid = object;
+                                // WIRE
+                                model.wire = object.clone();
+                                model.wire.traverse(function(child) {
+                                    if (child.isMesh) {
+                                        child.material = new THREE.MeshBasicMaterial({wireframe: true, color: model.wireColor});
+                                    }
+                                });
+                                //model.rotation.y = Math.PI;
+                                model.scale.set(1, 1, 1);
+                                // CHILDREN
+                                model.add(model.solid);
+                                model.add(model.wire);
+                                scene.add(model);
+                                model.setOnFloor();
+                                        
+                                // // MODEL-MENU
+                                // const guiModelMenu = gui.addFolder("Model Menu");
+                                // // GUI-Model
+                                // guiModelMenu.add(model, "visible").setValue(model.visible).name("Visible").listen().onChange(function(value) {
+                                    
+                                // });
+                                // guiModelMenu.add(model.solid, "visible").setValue(model.solid.visible).name("Wireframe").listen().onChange(function(value) {
+                                                
+                                // });
+                                // guiModelMenu.add(model, "doubleSide").setValue(model.doubleSide).name("Double Side").listen().onChange(function(value) {
+                                //     model.setDoubleSide(value);                                    
+                                // });
+                                // guiModelMenu.addColor(model, "color").name("Color").setValue(model.color).listen().onChange(function(value) {
+                                //     model.setColor(value);
+                                // });
+                                // guiModelMenu.addColor(model, "wireColor").name("Wire Color").setValue(model.wireColor).listen().onChange(function(value) {
+                                //     model.setWireColor(value);
+                                // });
+                                // guiModelMenu.add(model, "rotate").setValue(model.rotate).name("Rotate").listen().onChange(function(value) {
+                                                                            
+                                // });
+                        },
+                        // called when loading is in progresses
+                        function (xhr) {
+                             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                        },
+                        // called when loading has errors
+                        function (error) {
+                            console.log( 'An error happened' + error );
+                        }
+                );
+        }
+        setColor(hexColor) {
+            this.color = hexColor;
+            this.solid.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material.color.setHex(hexColor);
+                            }
+            });
+        }
+        setWireColor(hexColor) {
+            this.wireColor = hexColor;
+            this.wire.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material.color.setHex(hexColor);
+                            }
+            });
+        }
+        setDoubleSide(value) {
+            this.doubleSide = value;
+            this.solid.traverse(function(child) {
+                if (child.isMesh) {
+                    if(value) {
+                        child.material.side = THREE.DoubleSide;
+                    } else {
+                        child.material.side = THREE.FrontSide;
+                    }
+                }
+            });
+        }
+        setOnFloor() {
+            const bBox = new THREE.Box3();
+            bBox.setFromObject(this.solid);
+            this.position.y = -bBox.min.y;
+        }
+    }
+
+        class Car extends Cube {
+            constructor(x = 0, z = 0, theta = Math.PI/2) {
+                super(5, 0x00ff0);
+                this.x = x;
+                this.z = z;
+                this.theta = theta;
+                this.setOnFloor();
+                this.position.set(x, 0, z);
+            }
+            setPosition(x, z) {
+                this.x = x;
+                this.z = z;
+                this.position.set(x, 0, z);
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+        }
+
+        class Building extends THREE.Group {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/lowPolyBuilding.obj") {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, 0, z);
+                this.color = 0xcc0000;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+                //this.setOnFloor();
+            }
+            setWireframe(value = true) {
+                this.solid.setVisible(value);
+            }
+            setColor(hexColor) {
+                this.color = hexColor;
+                this.solid.material.color.setHex(hexColor);
+            }
+            setWireColor(hexColor) {
+                this.wireColor = hexColor;
+                this.wire.material.color.setHex(hexColor);
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                const model = this;
+                loader.load(objFileName,
+                            // called when resource is loaded
+                            function (object) { 
+                                // SOLID
+                                object.traverse(function(child) {
+                                    if (child.isMesh) {
+                                        child.material = new THREE.MeshBasicMaterial({color: model.color});
+                                    }
+                                });
+                                model.solid = object;
+                                // WIRE
+                                model.wire = object.clone();
+                                model.wire.traverse(function(child) {
+                                    if (child.isMesh) {
+                                        child.material = new THREE.MeshBasicMaterial({wireframe: true, color: model.wireColor});
+                                    }
+                                });
+                                //model.rotation.y = Math.PI;
+                                model.scale.set(20, 20, 20);
+                                // CHILDREN
+                                model.add(model.solid);
+                                model.add(model.wire);
+                                scene.add(model);
+                                model.setOnFloor();
+                            },
+                                // called when loading is in progresses
+                            function (xhr) {
+                                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                            },
+                                // called when loading has errors
+                            function (error) {
+                                console.log( 'An error happened' + error );
+                            }
+                );
+        }
+            setDoubleSide(value) {
+                this.doubleSide = value;
+                if(value) {
+                    this.solid.material.side = THREE.DoubleSide;
+                } else {
+                    this.solid.material.side = THREE.FrontSide;
+                }
+            }
+            setOnFloor() {
+                this.solid.geometry.computeBoundingBox();
+                const bBox = this.solid.geometry.boundingBox;
+                this.position.y = -bBox.min.y;
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+        }
+
+        class Semaforo extends THREE.Group {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/trafficlight.obj") {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, 0, z);
+                this.color = 0xcc0000;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            setWireframe(value = true) {
+                this.solid.setVisible(value);
+            }
+            setColor(hexColor) {
+                this.color = hexColor;
+                this.solid.material.color.setHex(hexColor);
+            }
+            setWireColor(hexColor) {
+                this.wireColor = hexColor;
+                this.wire.material.color.setHex(hexColor);
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                const model = this;
+                loader.load(objFileName,
+                            // called when resource is loaded
+                            function (object) { 
+                                // SOLID
+                                object.traverse(function(child) {
+                                    if (child.isMesh) {
+                                        child.material = new THREE.MeshBasicMaterial({color: model.color});
+                                    }
+                                });
+                                model.solid = object;
+                                // WIRE
+                                model.wire = object.clone();
+                                model.wire.traverse(function(child) {
+                                    if (child.isMesh) {
+                                        child.material = new THREE.MeshBasicMaterial({wireframe: true, color: model.wireColor});
+                                    }
+                                });
+                                //model.rotation.y = Math.PI;
+                                model.scale.set(0.5, 0.5, 0.5);
+                                // CHILDREN
+                                model.add(model.solid);
+                                model.add(model.wire);
+                                scene.add(model);
+                                model.setOnFloor();
+                            },
+                                // called when loading is in progresses
+                            function (xhr) {
+                                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                            },
+                                // called when loading has errors
+                            function (error) {
+                                console.log( 'An error happened' + error );
+                            }
+                );
+        }
+            setDoubleSide(value) {
+                this.doubleSide = value;
+                if(value) {
+                    this.solid.material.side = THREE.DoubleSide;
+                } else {
+                    this.solid.material.side = THREE.FrontSide;
+                }
+            }
+            setOnFloor() {
+                this.solid.geometry.computeBoundingBox();
+                const bBox = this.solid.geometry.boundingBox;
+                this.position.y = -bBox.min.y;
+            }
+        }
+
+        class Scenary extends THREE.Group {
+            constructor(size = 1000) {
+                super();
+                this.axes = new Axes(size);
+                this.floor = new Floor(size);
+                this.buildings = [];
+                this.semaforos = [];
+                this.showWireframe = false
+
+                //SE
+                this.buildings.push(new Building(35, 35, 180));
+                /*
+                this.buildings.push(new Building(35, 90));
+                this.buildings.push(new Building(35, 145));
+                this.buildings.push(new Building(35, 200));
+                this.buildings.push(new Building(35, 255));
+                */
+                
+                this.buildings.push(new Building(90, 35, 180));
+                this.buildings.push(new Building(145, 35, 180));
+                this.buildings.push(new Building(200, 35, 180));
+                this.buildings.push(new Building(255, 35, 180));
+                this.buildings.push(new Building(305, 35, 180));
+
+                // SW (Tec)
+                this.buildings.push(new Building(-35, 35, 180));
+                /*
+                this.buildings.push(new Building(-35, 90));
+                this.buildings.push(new Building(-35, 145));
+                this.buildings.push(new Building(-35, 200));
+                */
+
+                this.buildings.push(new Building(-35, 35, 180));
+                this.buildings.push(new Building(-90, 35, 180));
+                this.buildings.push(new Building(-145, 35, 180));
+                this.buildings.push(new Building(-205, 35, 180));
+                this.buildings.push(new Building(-260, 35, 180));
+                
+                // NE
+                this.buildings.push(new Building(35, -35));
+                this.buildings.push(new Building(90, -35));
+                this.buildings.push(new Building(145, -35));
+                this.buildings.push(new Building(205, -35));
+                this.buildings.push(new Building(260, -35));
+
+                /*
+                this.buildings.push(new Building(35, -90));
+                this.buildings.push(new Building(35, -145));
+                this.buildings.push(new Building(35, -200));
+                this.buildings.push(new Building(35, -255));
+                this.buildings.push(new Building(35, -310));
+                */
+                
+                // NW
+                this.buildings.push(new Building(-35, -35));
+                this.buildings.push(new Building(-90, -35));
+                this.buildings.push(new Building(-145, -35));
+                this.buildings.push(new Building(-205, -35));
+                this.buildings.push(new Building(-260, -35));
+
+                /*
+                this.buildings.push(new Building(-35, -90));
+                this.buildings.push(new Building(-35, -145));
+                this.buildings.push(new Building(-35, -200));
+                this.buildings.push(new Building(-35, -255));
+                this.buildings.push(new Building(-35, -310));
+                */
+
+                // CHILDREN
+                this.add(this.axes);
+                this.add(this.floor);
+                for(let i = 0; i < this.buildings.length; i++) {
+                    this.add(this.buildings[i]);
+                }
+            }
+            changeWireframe(value = false) {
+                for (var i = 0; i < this.children.length; i = i+1) {
+                    this.children[i].material.wireframe = value;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
