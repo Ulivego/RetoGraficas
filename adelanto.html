@@ -44,6 +44,10 @@
             // MODELS
             const scenary = new Scenary();
 
+            // CAMERA
+            camera = new Camera();
+            camera.setTrafficCamera();
+
             /*
             semaforos.push(new Semaforo(-4, 0, 270));
             semaforos.push(new Semaforo(4, 0, 90));
@@ -53,6 +57,7 @@
             scene.add(scenary);
 
             // CAMERA (PERSPECTIVE)
+            /*-----------------------
             const fov = 60;    // Field ov view
             const aspect = window.innerWidth / window.innerHeight;
             const near = 0.01;
@@ -63,6 +68,7 @@
             orbitControls = new OrbitControls(camera, renderer.domElement);
             //orbitControls.target = model.position;
             orbitControls.update();
+            ------------------------*/
 
             // SETUP STATS
             stats = new Stats();
@@ -80,6 +86,37 @@
                 scenary.changeWireframe(value);
             });
             guiSceneMenu.open();
+            // CAMERA-MENU
+            const guiCameraMenu = gui.addFolder("Camera Menu")
+            guiCameraMenu.add(camera.orbitControls, "autoRotate").setValue(false).name("Rotate Camera").listen().onChange(value => {
+                camera.setAutoRotate(value);
+            });
+            guiCameraMenu.add(camera.viewTypes, "top").setValue(camera.viewTypes["top"]).name("Top View").listen().onChange(value => {
+                camera.setTop();
+            });
+            guiCameraMenu.add(camera.viewTypes, "front").setValue(camera.viewTypes["front"]).name("Front View").listen().onChange(value => {
+                camera.setFront();
+            });
+            guiCameraMenu.add(camera.viewTypes, "side").setValue(camera.viewTypes["side"]).name("Side View").listen().onChange(value => {
+                camera.setSide();
+            });
+            /*
+            guiCameraMenu.add(camera.viewTypes, "inModel").setValue(camera.viewTypes["inModel"]).name("Model View").listen().onChange(value => {
+                camera.setInModel(model);
+            });
+            guiCameraMenu.add(camera.viewTypes, "closeToModel").setValue(camera.viewTypes["closeToModel"]).name("Close To Model View").listen().onChange(value => {
+                camera.setCloseToModel(model);
+            });
+            guiCameraMenu.add(camera.viewTypes, "focusOnModel").setValue(camera.viewTypes["focusOnModel"]).name("Focus On Model View").listen().onChange(value => {
+                camera.setFocusOnModel(model);
+            });
+            */
+            guiCameraMenu.add(camera.viewTypes, "perspective").setValue(camera.viewTypes["perspective"]).name("Perspective View").listen().onChange(value => {
+                camera.setPerspective();
+            });
+            guiCameraMenu.add(camera.viewTypes, "traffic").setValue(camera.viewTypes["traffic"]).name("Traffic Camera").listen().onChange(value => {
+                camera.setTrafficCamera();
+            });
 
             // READ JSON FILE
             readTextFile("/testData.json", function(text) {
@@ -131,6 +168,9 @@
         }
 
         function updateScene() {
+            if(camera.orbitControls.autoRotate){
+                camera.orbitControls.update()
+            }
            if (dataReady){
                k = (k + 1) % data.frames.length;
                 for (let i = 0; i < data.frames[k].cars.length; i++){
@@ -679,6 +719,121 @@
                 }
             }
         }
+
+        // CAMERA (PERSPECTIVE)
+        class Camera extends THREE.PerspectiveCamera {
+            constructor(fov = 60, aspect = window.innerWidth / window.innerHeight, near = 0.01, far = 10000.0) {
+                super(fov, aspect, near, far)
+                // CAMERA CONTROLS
+                this.orbitControls = new OrbitControls(this, renderer.domElement);
+                this.orbitControls.update(); // Es necesario siempre que se actualiza la cámara
+
+                // Views
+                this.viewTypes = {
+                    "top": false,
+                    "perspective": false,
+                    "front": false,
+                    "side": false,
+                    "inModel": false,
+                    "closeToModel": false,
+                    "focusOnModel": false,
+                    "traffic": false
+                }
+                this.currentView = ""
+
+            }
+
+            setPerspective() {
+                this.viewTypes[this.currentView] = false;
+                this.currentView = "perspective";
+                this.viewTypes[this.currentView] = true;
+                this.position.set(-100, 100, 300);
+                this.orbitControls.target = new THREE.Vector3(0, 0, 0);
+                this.up.set(0, 1, 0)
+                this.orbitControls.update();
+            }
+
+            setTop() {
+                this.viewTypes[this.currentView] = false;
+                this.currentView = "top"
+                this.viewTypes[this.currentView] = true;
+                this.position.set(0, 250, 0);
+                this.orbitControls.target = new THREE.Vector3(0, 0, 0);
+                this.up.set(1, 0, 0)
+                this.orbitControls.update();
+            }
+
+            setFront() {
+                this.viewTypes[this.currentView] = false;
+                this.currentView = "front";
+                this.viewTypes[this.currentView] = true;
+                this.position.set(0, 60, 300);
+                this.orbitControls.target = new THREE.Vector3(0, 0, 0);
+                this.up.set(0, 1, 0);
+                this.orbitControls.update();
+            }
+
+            setSide() {
+                this.viewTypes[this.currentView] = false;
+                this.currentView = "side";
+                this.viewTypes[this.currentView] = true;
+                this.position.set(300, 60, 0);
+                this.orbitControls.target = new THREE.Vector3(0, 0, 0);
+                this.up.set(0, 1, 0);
+                this.orbitControls.update();
+            }
+
+            setInModel(model) {
+                if(this.currentView != "inModel") {
+                    this.viewTypes[this.currentView] = false;
+                    this.currentView = "inModel";
+                    this.viewTypes[this.currentView] = true;
+                    this.up.set(0, 1, 0);
+                }
+                this.position.set(model.position.x - 0.5, model.position.y + 1.8, model.position.z);
+                this.orbitControls.target = new THREE.Vector3(model.position.x - 0.5, model.position.y + 1.8, model.position.z);
+                this.orbitControls.update();
+            }
+
+            setCloseToModel(model) {
+                if(this.currentView != "closeToModel") {
+                    this.viewTypes[this.currentView] = false;
+                    this.currentView = "closeToModel";
+                    this.viewTypes[this.currentView] = true;
+                    this.up.set(0, 1, 0);
+                }
+                this.position.set(model.position.x , model.position.y + 5, model.position.z + 9);
+                this.orbitControls.target = new THREE.Vector3(model.position.x, model.position.y, model.position.z);
+                this.orbitControls.update();
+            }
+
+            setFocusOnModel(model) {
+                if(this.currentView != "focusOnModel") {
+                    this.viewTypes[this.currentView] = false;
+                    this.currentView = "focusOnModel";
+                    this.viewTypes[this.currentView] = true;
+                    this.up.set(0, 1, 0);
+                }
+                this.position.set(-100 , 100, 300);
+                this.orbitControls.target = new THREE.Vector3(model.position.x, model.position.y, model.position.z);
+                this.orbitControls.update();
+            }
+
+            setTrafficCamera() {
+                this.viewTypes[this.currentView] = false;
+                this.currentView = "traffic";
+                this.viewTypes[this.currentView] = true;
+                this.position.set(-13, 14, -13);
+                this.orbitControls.target = new THREE.Vector3(5, 6, 5);
+                this.up.set(0, 1, 0);
+                this.orbitControls.update();
+            }
+
+            setAutoRotate(value = true) {
+                this.orbitControls.autoRotate = value
+            }
+        }
+
     </script>
 </body>
 </html>
