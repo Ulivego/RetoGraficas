@@ -94,13 +94,15 @@
             function instantiateTrafficLights() {
                 for (let trafLight of data.trafficLights){
                     let trafLightID = trafLight.id;
-                    let trafLightX = trafLight.x;
-                    let trafLightZ = trafLight.z;
+                    let trafLightX = trafLight.origin.x;
+                    let trafLightZ = trafLight.origin.z;
                     let trafLightState = trafLight.state;
                     let trafLightDir = trafLight.dir;
-                    let trafficLight = new Semaforo(trafLightID, trafLightX, trafLightZ, trafLightState, trafLightDir);
+                    let trafficLight = new Semaforo(trafLightX, trafLightZ, trafLightState, trafLightDir);
                     trafficLight.name = trafLightID;
                     semaforos.push(trafficLight);
+                    console.log(trafficLight.position.x);
+                    console.log(trafLight);
                 }
             }
 
