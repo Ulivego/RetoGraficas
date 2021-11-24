@@ -11,8 +11,8 @@ strFile = """{
 frames = """"frames": [
     """
 
-posX = [15, -15, -225, 225]
-posY = [225, -225, 15, -15]
+posX = [12.5, -12.5, -225, 225]
+posY = [225, -225, 12.5, -12.5]
 
 cant = 10
 dataCarsLeft = []
@@ -26,21 +26,21 @@ carsDown = 0
 for i in range(cant):
     posInicial = random.randint(0, 3)
 
-    if posX[posInicial] == -15:
+    if posX[posInicial] == -12.5:
         direction = 0
-        dataCarsLeft.append([i, posX[posInicial], posY[posInicial] + 20*carsLeft, posY[posInicial]*-1, direction])
+        dataCarsLeft.append([i, posX[posInicial], posY[posInicial] + 20*carsLeft, posY[posInicial]*-1, direction, posY[posInicial] + 20*carsLeft])
         carsLeft += 1
-    elif posX[posInicial] == 15:
+    elif posX[posInicial] == 12.5:
         direction = 180
-        dataCarsRight.append([i, posX[posInicial], posY[posInicial] - 20*carsRight, posY[posInicial]*-1, direction])
+        dataCarsRight.append([i, posX[posInicial], posY[posInicial] + 20*carsRight, posY[posInicial]*-1, direction, posY[posInicial] + 20*carsRight])
         carsRight += 1
     elif posX[posInicial] == 225:
         direction = 270
-        dataCarsUp.append([i, posX[posInicial] - 20*carsUp, posY[posInicial], posY[posInicial]*-1, direction])
+        dataCarsUp.append([i, posX[posInicial] - 20*carsUp, posY[posInicial], posY[posInicial]*-1, direction, posX[posInicial] - 20*carsUp])
         carsUp += 1
     else:
         direction = 90
-        dataCarsDown.append([i, posX[posInicial] + 20*carsDown, posY[posInicial], posY[posInicial]*-1, direction])
+        dataCarsDown.append([i, posX[posInicial] + 20*carsDown, posY[posInicial], posY[posInicial]*-1, direction, posX[posInicial] + 20*carsDown])
         carsDown += 1
     
     strFile += """{
@@ -114,17 +114,27 @@ for i in range(401):
             "trafficLights": ["""
     
     #Tiempos en los que se cambia el semáforo
-    if (seg < 15):
+    if (seg < 200):
         tLights[lightGreen] = 1
-    elif (seg < 20):
-        tLights[lightGreen] = 2
-    elif (seg == 20):
+    elif (seg < 300):
         tLights[lightGreen] = 0
+        # if seg < 299:
+        #     tLights[lightGreen] = 1
         if lightGreen < 3:
             lightGreen = 0
         else:
             lightGreen += 1
-        seg = 0
+    if (seg == 400):
+        seg = -1
+        
+    # elif (seg == 400):
+    #     tLights[lightGreen][0] = 0
+    #     tLights[lightGreen][1] = 0
+    #     if lightGreen < 3:
+    #         lightGreen = 0
+    #     else:
+    #         lightGreen += 1
+    #     seg = 0
 
     #Texto para el json de los semáforos
     for m in range(4):
@@ -138,7 +148,7 @@ for i in range(401):
 
     index = 0
 
-    frames += """,
+    frames += """],
     "cars": ["""
     for j in dataCarsLeft:
         frames += """{
@@ -151,12 +161,17 @@ for i in range(401):
             frames += ","
         index += 1
     for m in dataCarsRight:
+        if m[5] <= m[2] - 195 and tLights[0] == 0:
+            stop = 0
+        else:
+            stop = 1
         frames += """{
-                "id": """ + str(m[0]) + """,
-                "x": """ + str(m[1]) + """,
-                "z": """ + str(m[2] - i) + """,
-                "dir": """ + str(m[4]) + """
-            }"""
+                    "id": """ + str(m[0]) + """,
+                    "x": """ + str(m[1]) + """,
+                    "z": """ + str(m[5] - stop) + """,
+                    "dir": """ + str(m[4]) + """
+                    }"""
+        m[5] = m[5] - stop
         if index < cant-1:
             frames += ","
         index += 1
