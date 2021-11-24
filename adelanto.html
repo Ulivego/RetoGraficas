@@ -624,15 +624,13 @@
                 this.showWireframe = false
 
                 //SE
-                this.buildings.push(new Building(35, 35, 180));
-                /*
-                this.buildings.push(new Building(35, 90));
-                this.buildings.push(new Building(35, 145));
-                this.buildings.push(new Building(35, 200));
-                this.buildings.push(new Building(35, 255));
-                */
-                //   
-                this.buildings.push(new Building(0, 0, 180, "./assets/house.obj", -50))
+                this.buildings.push(new Building(35, 35, 180));   
+                //this.buildings.push(new Building(11.5, 10, 180, "./assets/house.obj", -50))
+                this.buildings.push(new Building(62.5, 35, 180))
+                this.buildings.push(new Building(117.5, 35, 180))
+                this.buildings.push(new Building(172.5, 35, 180))
+                this.buildings.push(new Building(227.5, 35, 180))
+                this.buildings.push(new Building(282.5, 35, 180))
                 //
                 this.buildings.push(new Building(90, 35, 180));
                 this.buildings.push(new Building(145, 35, 180));
@@ -641,13 +639,12 @@
                 this.buildings.push(new Building(305, 35, 180));
 
                 // SW (Tec)
-                this.buildings.push(new Building(-35, 35, 180));
-                /*
-                this.buildings.push(new Building(-35, 90));
-                this.buildings.push(new Building(-35, 145));
-                this.buildings.push(new Building(-35, 200));
-                */
-
+                this.buildings.push(new Building(-62.5, 35, 180));
+                this.buildings.push(new Building(-117.5, 35, 180));
+                this.buildings.push(new Building(-172.5, 35, 180));
+                this.buildings.push(new Building(-227.5, 35, 180));
+                this.buildings.push(new Building(-282.5, 35, 180));
+                //
                 this.buildings.push(new Building(-35, 35, 180));
                 this.buildings.push(new Building(-90, 35, 180));
                 this.buildings.push(new Building(-145, 35, 180));
@@ -655,34 +652,30 @@
                 this.buildings.push(new Building(-260, 35, 180));
                 
                 // NE
+                this.buildings.push(new Building(62.5, -35))
+                this.buildings.push(new Building(117.5, -35))
+                this.buildings.push(new Building(172.5, -35))
+                this.buildings.push(new Building(227.5, -35))
+                this.buildings.push(new Building(282.5, -35))
+                //
                 this.buildings.push(new Building(35, -35));
                 this.buildings.push(new Building(90, -35));
                 this.buildings.push(new Building(145, -35));
                 this.buildings.push(new Building(205, -35));
                 this.buildings.push(new Building(260, -35));
-
-                /*
-                this.buildings.push(new Building(35, -90));
-                this.buildings.push(new Building(35, -145));
-                this.buildings.push(new Building(35, -200));
-                this.buildings.push(new Building(35, -255));
-                this.buildings.push(new Building(35, -310));
-                */
                 
                 // NW
+                this.buildings.push(new Building(-62.5, -35))
+                this.buildings.push(new Building(-117.5, -35))
+                this.buildings.push(new Building(-172.5, -35))
+                this.buildings.push(new Building(-227.5, -35))
+                this.buildings.push(new Building(-282.5, -35))
+                //
                 this.buildings.push(new Building(-35, -35));
                 this.buildings.push(new Building(-90, -35));
                 this.buildings.push(new Building(-145, -35));
                 this.buildings.push(new Building(-205, -35));
                 this.buildings.push(new Building(-260, -35));
-
-                /*
-                this.buildings.push(new Building(-35, -90));
-                this.buildings.push(new Building(-35, -145));
-                this.buildings.push(new Building(-35, -200));
-                this.buildings.push(new Building(-35, -255));
-                this.buildings.push(new Building(-35, -310));
-                */
 
                 // CHILDREN
                 this.add(this.axes);
