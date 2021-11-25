@@ -27,7 +27,7 @@
 
         let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data, trafficLightReady;
         let semaforos = [];
-        let ambientLight, directionalLight;
+        let ambientLight, directionalLight, skyBox;
         
         function init(event) {
             // RENDERER ENGINE
@@ -44,6 +44,9 @@
             // MODELS
             const scenary = new Scenary();
 
+            // SKYBOX
+            skyBox = new SkyBox(25);
+
             // LIGHTS
             ambientLight = new AmbientLight();
             directionalLight = new DirectionalLight();
@@ -56,6 +59,7 @@
             scene.add(scenary);
             scene.add(ambientLight);
             scene.add(directionalLight);
+            scene.add(skyBox);
 
             // SETUP STATS
             stats = new Stats();
@@ -261,7 +265,7 @@
         }
 
         class Floor extends THREE.Group {
-            constructor(size = 100) {
+            constructor(size = 30) {
                 super();
                 this.size = size;
                 const geometry = new THREE.PlaneGeometry(size, size);
@@ -604,7 +608,7 @@
         }
 
         class Scenary extends THREE.Group {
-            constructor(size = 1000) {
+            constructor(size = 700) {
                 super();
                 this.axes = new Axes(size);
                 this.floor = new Floor(size);
@@ -666,7 +670,7 @@
                 this.buildings.push(new Building(-205, -35));
                 this.buildings.push(new Building(-260, -35));
 
-                let geometry = new THREE.BoxGeometry(620, 1, 200);
+                let geometry = new THREE.BoxGeometry(700, 1, 200);
                 const texture = new THREE.TextureLoader().load("./assets/street.jpg");
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
@@ -815,6 +819,38 @@
             }
             setColor(strColor) {
                 this.color.setHex(strColor);
+            }
+        }
+
+        class SkyBox extends THREE.Mesh {
+            constructor(size = 1) {
+                super();
+                this.size = size;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.geometry = new THREE.BoxGeometry(size, size, size);
+                this.material = [
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_ft.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_bk.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_up.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_dn.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_rt.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_lf.png"), side: THREE.DoubleSide})
+                        ];
+                this.scale.set(100, 100, 100);
+            }
+            setDoubleSide(value) {
+                this.doubleSide = value;
+                if(value) {
+                    this.material.side = THREE.DoubleSide;
+                } else {
+                    this.material.side = THREE.FrontSide;
+                }
+            }
+            setOnFloor() {
+                this.geometry.computeBoundingBox();
+                const bBox = this.geometry.boundingBox;
+                this.position.y = -bBox.min.y;
             }
         }
 
