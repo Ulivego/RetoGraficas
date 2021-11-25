@@ -52,29 +52,10 @@
             camera = new Camera();
             camera.setTrafficCamera();
 
-            /*
-            semaforos.push(new Semaforo(-4, 0, 270));
-            semaforos.push(new Semaforo(4, 0, 90));
-            */
-
             // SCENE GRAPH
             scene.add(scenary);
             scene.add(ambientLight);
             scene.add(directionalLight);
-
-            // CAMERA (PERSPECTIVE)
-            /*-----------------------
-            const fov = 60;    // Field ov view
-            const aspect = window.innerWidth / window.innerHeight;
-            const near = 0.01;
-            const far = 10000.0;
-            camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-            camera.position.set(-100, 100, 300);
-            // CAMERA CONTROLS
-            orbitControls = new OrbitControls(camera, renderer.domElement);
-            //orbitControls.target = model.position;
-            orbitControls.update();
-            ------------------------*/
 
             // SETUP STATS
             stats = new Stats();
@@ -131,10 +112,15 @@
             guiDirectionalLightMenu.add(directionalLight, "intensity").name("Intensity").min(0).max(1).step(0.1).setValue(directionalLight.intensity).listen().onChange(function(value) {
 
             });
-            /*
+            
             guiCameraMenu.add(camera.viewTypes, "inModel").setValue(camera.viewTypes["inModel"]).name("Model View").listen().onChange(value => {
-                camera.setInModel(model);
+                const carID = data.frames[0].cars[4].id;
+                let car = scene.getObjectByName(carID);
+                if(car){
+                    camera.setInModel(car);
+                }
             });
+            /*
             guiCameraMenu.add(camera.viewTypes, "closeToModel").setValue(camera.viewTypes["closeToModel"]).name("Close To Model View").listen().onChange(value => {
                 camera.setCloseToModel(model);
             });
@@ -211,6 +197,9 @@
                     if (car) {
                         car.setPosition(x, z);
                         car.setDirection(dir);
+                        if(i == 4 && camera.currentView == "inModel"){
+                            camera.setInModel(car);
+                        }
                     } else {
                         console.log("Error")
                     } 
@@ -677,6 +666,19 @@
                 this.buildings.push(new Building(-205, -35));
                 this.buildings.push(new Building(-260, -35));
 
+                let geometry = new THREE.BoxGeometry(620, 1, 200);
+                const texture = new THREE.TextureLoader().load("./assets/street.jpg");
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.set(10, 10);
+                let material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+                let rightStreet = new THREE.Mesh( geometry, material );
+                rightStreet.position.set(0, 0, 115)
+                this.buildings.push(rightStreet);
+                let leftStreet = new THREE.Mesh( geometry, material );
+                leftStreet.position.set(0, 0, -115)
+                this.buildings.push(leftStreet);
+
                 // CHILDREN
                 this.add(this.axes);
                 this.add(this.floor);
@@ -761,8 +763,8 @@
                     this.viewTypes[this.currentView] = true;
                     this.up.set(0, 1, 0);
                 }
-                this.position.set(model.position.x - 0.5, model.position.y + 1.8, model.position.z);
-                this.orbitControls.target = new THREE.Vector3(model.position.x - 0.5, model.position.y + 1.8, model.position.z);
+                this.position.set(model.position.x, model.position.y + 1.4, model.position.z - 0.35);
+                this.orbitControls.target = new THREE.Vector3(model.position.x + 7, model.position.y - 0.34, model.position.z);
                 this.orbitControls.update();
             }
 
