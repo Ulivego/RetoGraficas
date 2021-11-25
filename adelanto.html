@@ -675,7 +675,7 @@
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 texture.repeat.set(10, 10);
-                let material = new THREE.MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+                let material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide});
                 let rightStreet = new THREE.Mesh( geometry, material );
                 rightStreet.position.set(0, 0, 115)
                 this.buildings.push(rightStreet);
@@ -830,12 +830,12 @@
                 this.rotate = false;
                 this.geometry = new THREE.BoxGeometry(size, size, size);
                 this.material = [
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_ft.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_bk.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_up.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_dn.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_rt.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_lf.png"), side: THREE.DoubleSide})
+                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_ft.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_bk.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_up.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_dn.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_rt.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_lf.png"), side: THREE.DoubleSide})
                         ];
                 this.scale.set(100, 100, 100);
             }
