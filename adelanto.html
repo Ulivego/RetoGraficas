@@ -608,7 +608,7 @@
         }
 
         class Scenary extends THREE.Group {
-            constructor(size = 700) {
+            constructor(size = 1000) {
                 super();
                 this.axes = new Axes(size);
                 this.floor = new Floor(size);
@@ -800,8 +800,8 @@
                 this.viewTypes[this.currentView] = false;
                 this.currentView = "traffic";
                 this.viewTypes[this.currentView] = true;
-                this.position.set(-13, 14, -13);
-                this.orbitControls.target = new THREE.Vector3(5, 6, 5);
+                this.position.set(-20, 14, -20);
+                this.orbitControls.target = new THREE.Vector3(5, 6, 0);
                 this.up.set(0, 1, 0);
                 this.orbitControls.update();
             }
