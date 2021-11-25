@@ -118,7 +118,7 @@
             });
             
             guiCameraMenu.add(camera.viewTypes, "inModel").setValue(camera.viewTypes["inModel"]).name("Model View").listen().onChange(value => {
-                const carID = data.frames[0].cars[4].id;
+                const carID = data.frames[0].cars[0].id;
                 let car = scene.getObjectByName(carID);
                 if(car){
                     camera.setInModel(car);
@@ -201,7 +201,7 @@
                     if (car) {
                         car.setPosition(x, z);
                         car.setDirection(dir);
-                        if(i == 4 && camera.currentView == "inModel"){
+                        if(i == 0 && camera.currentView == "inModel"){
                             camera.setInModel(car);
                         }
                     } else {
@@ -597,23 +597,12 @@
             }
         }
 
-        class AmbientLight extends THREE.AmbientLight {
-            constructor(color = 0xFFFFFF, intensity = 1) {
-                super(color, intensity);
-                this.strColor = color;
-            }
-            setColor(strColor) {
-                this.color.setHex(strColor);
-            }
-        }
-
         class Scenary extends THREE.Group {
             constructor(size = 1000) {
                 super();
                 this.axes = new Axes(size);
                 this.floor = new Floor(size);
                 this.buildings = [];
-                this.semaforos = [];
                 this.showWireframe = false
 
                 //SE
@@ -768,31 +757,7 @@
                     this.up.set(0, 1, 0);
                 }
                 this.position.set(model.position.x, model.position.y + 1.4, model.position.z - 0.35);
-                this.orbitControls.target = new THREE.Vector3(model.position.x + 7, model.position.y - 0.34, model.position.z);
-                this.orbitControls.update();
-            }
-
-            setCloseToModel(model) {
-                if(this.currentView != "closeToModel") {
-                    this.viewTypes[this.currentView] = false;
-                    this.currentView = "closeToModel";
-                    this.viewTypes[this.currentView] = true;
-                    this.up.set(0, 1, 0);
-                }
-                this.position.set(model.position.x , model.position.y + 5, model.position.z + 9);
-                this.orbitControls.target = new THREE.Vector3(model.position.x, model.position.y, model.position.z);
-                this.orbitControls.update();
-            }
-
-            setFocusOnModel(model) {
-                if(this.currentView != "focusOnModel") {
-                    this.viewTypes[this.currentView] = false;
-                    this.currentView = "focusOnModel";
-                    this.viewTypes[this.currentView] = true;
-                    this.up.set(0, 1, 0);
-                }
-                this.position.set(-100 , 100, 300);
-                this.orbitControls.target = new THREE.Vector3(model.position.x, model.position.y, model.position.z);
+                this.orbitControls.target = new THREE.Vector3(model.position.x + 7, model.position.y + 1.4, model.position.z);
                 this.orbitControls.update();
             }
 
@@ -811,8 +776,18 @@
             }
         }
 
+        class AmbientLight extends THREE.AmbientLight {
+            constructor(color = 0xFFFFFF, intensity = 0.5) {
+                super(color, intensity);
+                this.strColor = color;
+            }
+            setColor(strColor) {
+                this.color.setHex(strColor);
+            }
+        }
+
         class DirectionalLight extends THREE.DirectionalLight {
-            constructor(color = 0xFFFFFF, intensity = 1) {
+            constructor(color = 0xFFFFFF, intensity = 0.5) {
                 super(color, intensity);
                 this.strColor = color;
                 this.position.set(0, 100, 0);
