@@ -661,18 +661,28 @@
                 this.buildings.push(new Building(-205, -35));
                 this.buildings.push(new Building(-260, -35));
 
-                let geometry = new THREE.BoxGeometry(1000, 1, 200);
+                let geometry = new THREE.BoxGeometry(470, 1, 200);
                 const texture = new THREE.TextureLoader().load("./assets/street.jpg");
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 texture.repeat.set(10, 10);
                 let material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide});
-                let rightStreet = new THREE.Mesh( geometry, material );
-                rightStreet.position.set(0, 0, 115)
-                this.buildings.push(rightStreet);
-                let leftStreet = new THREE.Mesh( geometry, material );
-                leftStreet.position.set(0, 0, -115)
-                this.buildings.push(leftStreet);
+                let rightUpperStreet = new THREE.Mesh( geometry, material );
+                rightUpperStreet.position.set(250, 0, 115)
+                this.buildings.push(rightUpperStreet);
+                let leftUpperStreet = new THREE.Mesh( geometry, material );
+                leftUpperStreet.position.set(250, 0, -115)
+                this.buildings.push(leftUpperStreet);
+
+                let rightLowerStreet = new THREE.Mesh( geometry, material );
+                rightLowerStreet.position.set(-250, 0, 115)
+                this.buildings.push(rightLowerStreet);
+                let leftLowerStreet = new THREE.Mesh( geometry, material );
+                leftLowerStreet.position.set(-250, 0, -115)
+                this.buildings.push(leftLowerStreet);
+
+                //x = 0, z = 0, dir = 0, objFileName = "./assets/lowPolyBuilding.obj", y = 4;
+                //this.buildings.push(new Building(35, 35, 180, "./assets/lamp.obj", -40, 1));
 
                 // CHILDREN
                 this.add(this.axes);
