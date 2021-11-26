@@ -73,9 +73,11 @@
             guiSceneMenu.add(scenary.axes, "visible").setValue(scenary.axes.visible).name("World Axes").listen().onChange(function(value) {
                 scenary.axes.setVisible(value);
             });
+            /*
             guiSceneMenu.add(scenary, "showWireframe").setValue(scenary.showWireframe).name("Wireframe").listen().onChange(function(value) {
                 scenary.changeWireframe(value);
             });
+            */
             guiSceneMenu.open();
             // CAMERA-MENU
             const guiCameraMenu = gui.addFolder("Camera Menu")
