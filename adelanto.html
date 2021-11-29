@@ -608,13 +608,12 @@
                 this.showWireframe = false
 
                 //SE
-                this.buildings.push(new Building(35, 35, 180));   
-                //this.buildings.push(new Building(11.5, 10, 180, "./assets/house.obj", -50))
-                this.buildings.push(new Building(62.5, 35, 180))
-                this.buildings.push(new Building(117.5, 35, 180))
-                this.buildings.push(new Building(172.5, 35, 180))
-                this.buildings.push(new Building(227.5, 35, 180))
-                this.buildings.push(new Building(282.5, 35, 180))
+                this.buildings.push(new Building(35, 35, 180));
+                this.buildings.push(new Building(62.5, 35, 180));
+                this.buildings.push(new Building(117.5, 35, 180));
+                this.buildings.push(new Building(172.5, 35, 180));
+                this.buildings.push(new Building(227.5, 35, 180));
+                this.buildings.push(new Building(282.5, 35, 180));
                 //
                 this.buildings.push(new Building(90, 35, 180));
                 this.buildings.push(new Building(145, 35, 180));
@@ -623,17 +622,18 @@
                 this.buildings.push(new Building(305, 35, 180));
 
                 // SW (Tec)
-                this.buildings.push(new Building(-62.5, 35, 180));
-                this.buildings.push(new Building(-117.5, 35, 180));
-                this.buildings.push(new Building(-172.5, 35, 180));
-                this.buildings.push(new Building(-227.5, 35, 180));
-                this.buildings.push(new Building(-282.5, 35, 180));
+                this.buildings.push(new Building(-92.5, 35, 180)); //
+                this.buildings.push(new Building(-147.5, 35, 180));
+                this.buildings.push(new Building(-202.5, 35, 180));
+                this.buildings.push(new Building(-257.5, 35, 180));
+                this.buildings.push(new Building(-312.5, 35, 180));
                 //
-                this.buildings.push(new Building(-35, 35, 180));
-                this.buildings.push(new Building(-90, 35, 180));
-                this.buildings.push(new Building(-145, 35, 180));
-                this.buildings.push(new Building(-205, 35, 180));
-                this.buildings.push(new Building(-260, 35, 180));
+                //this.buildings.push(new Building(-35, 35, 180));
+                this.buildings.push(new GasStation(-50, 45, 270));
+                this.buildings.push(new Building(-120, 35, 180));
+                this.buildings.push(new Building(-175, 35, 180));
+                this.buildings.push(new Building(-235, 35, 180));
+                this.buildings.push(new Building(-290, 35, 180));
                 
                 // NE
                 this.buildings.push(new Building(62.5, -35))
@@ -642,7 +642,8 @@
                 this.buildings.push(new Building(227.5, -35))
                 this.buildings.push(new Building(282.5, -35))
                 //
-                this.buildings.push(new Building(35, -35));
+                //this.buildings.push(new Building(35, -35));
+                this.buildings.push(new GasStation(35, -45, 180));
                 this.buildings.push(new Building(90, -35));
                 this.buildings.push(new Building(145, -35));
                 this.buildings.push(new Building(205, -35));
@@ -661,24 +662,49 @@
                 this.buildings.push(new Building(-205, -35));
                 this.buildings.push(new Building(-260, -35));
 
-                let geometry = new THREE.BoxGeometry(470, 1, 200);
+                //Nuevos edificios //prueba #saludos #programando #aiuda
+                //los de la calle nueva cera de enfrente lado derecho
+                this.buildings.push(new Building(35, 65, 270));
+                this.buildings.push(new Building(35, 95, 270));
+                this.buildings.push(new Building(35, 125, 270));
+                this.buildings.push(new Building(35, 155, 270));
+
+                //los de la calle nueva cera de enfrente lado izq
+                this.buildings.push(new Building(35, -90, 270));
+                this.buildings.push(new Building(35, -120, 270));
+                this.buildings.push(new Building(35, -150, 270));
+                this.buildings.push(new Building(35, -180, 270));
+
+                //los de la calle nueva cera de atrás lado izq
+                this.buildings.push(new Building(-35, -70, 90));
+                this.buildings.push(new Building(-35, -100, 90));
+                this.buildings.push(new Building(-35, -130, 90));
+                this.buildings.push(new Building(-35, -160, 90));
+
+                //los de la calle nueva cera de atrás lado derecho
+                this.buildings.push(new Building(-35, 85, 90));
+                this.buildings.push(new Building(-35, 115, 90));
+                this.buildings.push(new Building(-35, 145, 90));
+                this.buildings.push(new Building(-35, 175, 90));
+
+                let geometry = new THREE.BoxGeometry(470, 1, 300);
                 const texture = new THREE.TextureLoader().load("./assets/street.jpg");
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 texture.repeat.set(10, 10);
                 let material = new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide});
                 let rightUpperStreet = new THREE.Mesh( geometry, material );
-                rightUpperStreet.position.set(250, 0, 115)
+                rightUpperStreet.position.set(250, 0, 165)
                 this.buildings.push(rightUpperStreet);
                 let leftUpperStreet = new THREE.Mesh( geometry, material );
-                leftUpperStreet.position.set(250, 0, -115)
+                leftUpperStreet.position.set(250, 0, -165)
                 this.buildings.push(leftUpperStreet);
 
                 let rightLowerStreet = new THREE.Mesh( geometry, material );
-                rightLowerStreet.position.set(-250, 0, 115)
+                rightLowerStreet.position.set(-250, 0, 165)
                 this.buildings.push(rightLowerStreet);
                 let leftLowerStreet = new THREE.Mesh( geometry, material );
-                leftLowerStreet.position.set(-250, 0, -115)
+                leftLowerStreet.position.set(-250, 0, -165)
                 this.buildings.push(leftLowerStreet);
 
                 //x = 0, z = 0, dir = 0, objFileName = "./assets/lowPolyBuilding.obj", y = 4;
@@ -838,6 +864,87 @@
                 this.geometry.computeBoundingBox();
                 const bBox = this.geometry.boundingBox;
                 this.position.y = -bBox.min.y;
+            }
+        }
+
+        //Testing adding gas stations
+        class GasStation extends THREE.Group {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/newGasStation.obj", y = -46) {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, y, z);
+                this.color = 0x119977;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            setWireframe(value = true) {
+                this.solid.setVisible(value);
+            }
+            setColor(hexColor) {
+                this.color = hexColor;
+                this.solid.material.color.setHex(hexColor);
+            }
+            setWireColor(hexColor) {
+                this.wireColor = hexColor;
+                this.wire.material.color.setHex(hexColor);
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                const model = this;
+                loader.load(objFileName,
+                    // called when resource is loaded
+                    function (object) { 
+                        // SOLID
+                        object.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({color: model.color, side: THREE.FrontSide});
+                            }
+                        });
+                        model.solid = object;
+                        // WIRE
+                        model.wire = object.clone();
+                        model.wire.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor, side: THREE.FrontSide});
+                            }
+                        });
+                        //model.rotation.y = Math.PI;
+                        model.scale.set(22, 22, 22);
+                        // CHILDREN
+                        model.add(model.solid);
+                        model.add(model.wire);
+                        scene.add(model);
+                        model.setOnFloor();
+                    },
+                        // called when loading is in progresses
+                    function (xhr) {
+                        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    },
+                        // called when loading has errors
+                    function (error) {
+                        console.log( 'An error happened' + error );
+                    }
+                );
+            }
+            setDoubleSide(value) {
+                this.doubleSide = value;
+                if(value) {
+                    this.solid.material.side = THREE.DoubleSide;
+                } else {
+                    this.solid.material.side = THREE.FrontSide;
+                }
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
             }
         }
 
