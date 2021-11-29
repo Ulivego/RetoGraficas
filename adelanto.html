@@ -27,7 +27,7 @@
 
         let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data, trafficLightReady;
         let semaforos = [];
-        let ambientLight, directionalLight, skyBox;
+        let ambientLight, directionalLight, skyBox, spotLight;
         
         function init(event) {
             // RENDERER ENGINE
@@ -50,6 +50,9 @@
             // LIGHTS
             ambientLight = new AmbientLight();
             directionalLight = new DirectionalLight();
+            
+            //testing spotlight
+            spotLight = new SpotLight();
 
             // CAMERA
             camera = new Camera();
@@ -60,6 +63,9 @@
             scene.add(ambientLight);
             scene.add(directionalLight);
             scene.add(skyBox);
+
+            //test
+            scene.add(spotLight);
 
             // SETUP STATS
             stats = new Stats();
@@ -725,6 +731,9 @@
                 this.buildings.push(new Building(-35, 145, 90));
                 this.buildings.push(new Building(-35, 175, 90));
 
+                //Agregando una lampara
+                this.buildings.push(new Lamp(45, 17, 180));
+
                 let geometry = new THREE.BoxGeometry(470, 1, 300);
                 const texture = new THREE.TextureLoader().load("./assets/street.jpg");
                 texture.wrapS = THREE.RepeatWrapping;
@@ -983,6 +992,83 @@
             setDirection(dir) {
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
+            }
+        }
+
+        //Testing adding lamps
+        class Lamp extends THREE.Group {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/lamp.obj", y = -15.5) {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, y, z);
+                this.color = 0x119977;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                const model = this;
+                loader.load(objFileName,
+                    // called when resource is loaded
+                    function (object) { 
+                        // SOLID
+                        object.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({color: model.color, side: THREE.FrontSide});
+                            }
+                        });
+                        model.solid = object;
+                        // WIRE
+                        model.wire = object.clone();
+                        model.wire.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor, side: THREE.FrontSide});
+                            }
+                        });
+                        //model.rotation.y = Math.PI;
+                        model.scale.set(8, 8, 8);
+                        // CHILDREN
+                        model.add(model.solid);
+                        model.add(model.wire);
+                        scene.add(model);
+                        model.setOnFloor();
+                    },
+                        // called when loading is in progresses
+                    function (xhr) {
+                        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    },
+                        // called when loading has errors
+                    function (error) {
+                        console.log( 'An error happened' + error );
+                    }
+                );
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+        }
+
+        class SpotLight extends THREE.SpotLight {
+            constructor(color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0, decay = 1) {
+                super(color, intensity, distance, angle, penumbra, decay);
+                this.angleDeg = angle * 180 / Math.PI;
+                this.strColor = color;
+                this.position.set(48, 12, 15);
+            }
+            setColor(strColor) {
+                this.color.setHex(strColor);
+            }
+            setAngle(angleDeg) {
+                this.angle = angleDeg * Math.PI / 180;
             }
         }
 
