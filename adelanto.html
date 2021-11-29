@@ -345,26 +345,58 @@
                         model.setOnFloor();
                                 
                         // // MODEL-MENU
-                        // const guiModelMenu = gui.addFolder("Model Menu");
+                        const guiModelMenu = gui.addFolder("Model Menu");
                         // // GUI-Model
-                        // guiModelMenu.add(model, "visible").setValue(model.visible).name("Visible").listen().onChange(function(value) {
-                            
-                        // });
-                        // guiModelMenu.add(model.solid, "visible").setValue(model.solid.visible).name("Wireframe").listen().onChange(function(value) {
-                                        
-                        // });
-                        // guiModelMenu.add(model, "doubleSide").setValue(model.doubleSide).name("Double Side").listen().onChange(function(value) {
-                        //     model.setDoubleSide(value);                                    
-                        // });
-                        // guiModelMenu.addColor(model, "color").name("Color").setValue(model.color).listen().onChange(function(value) {
-                        //     model.setColor(value);
-                        // });
-                        // guiModelMenu.addColor(model, "wireColor").name("Wire Color").setValue(model.wireColor).listen().onChange(function(value) {
-                        //     model.setWireColor(value);
-                        // });
-                        // guiModelMenu.add(model, "rotate").setValue(model.rotate).name("Rotate").listen().onChange(function(value) {
+                        guiModelMenu.add(model, "visible").setValue(model.visible).name("Visible").listen().onChange(function(value) {
+                            for (let car of data.cars){
+                                let carID = car.id;
+                                let thisCar = scene.getObjectByName(carID);
+                                if(car){
+                                    thisCar.setVisible(value);
+                                } 
+                            } 
+                        });
+                        guiModelMenu.add(model.solid, "visible").setValue(model.solid.visible).name("Wireframe").listen().onChange(function(value) {
+                            for (let car of data.cars){
+                                let carID = car.id;
+                                let thisCar = scene.getObjectByName(carID);
+                                if(car){
+                                    thisCar.setWireframe(value);
+                                } 
+                            }   
+                        });
+                        guiModelMenu.add(model, "doubleSide").setValue(model.doubleSide).name("Double Side").listen().onChange(function(value) {
+                            for (let car of data.cars){
+                                let carID = car.id;
+                                let thisCar = scene.getObjectByName(carID);
+                                if(car){
+                                    thisCar.setDoubleSide(value);
+                                } 
+                            }     
+                        });
+                        guiModelMenu.addColor(model, "color").name("Color").setValue(model.color).listen().onChange(function(value) {
+                            for (let car of data.cars){
+                                let carID = car.id;
+                                let thisCar = scene.getObjectByName(carID);
+                                if(car){
+                                    thisCar.setColor(value);
+                                } 
+                            } 
+                        });
+                        guiModelMenu.addColor(model, "wireColor").name("Wire Color").setValue(model.wireColor).listen().onChange(function(value) {
+                            for (let car of data.cars){
+                                let carID = car.id;
+                                let thisCar = scene.getObjectByName(carID);
+                                if(car){
+                                    thisCar.setWireColor(value);
+                                } 
+                            }
+                        });
+                        /*
+                        guiModelMenu.add(model, "rotate").setValue(model.rotate).name("Rotate").listen().onChange(function(value) {
                                                                     
-                        // });
+                        });
+                        */
                     },
                     // called when loading is in progresses
                     function (xhr) {
@@ -375,6 +407,12 @@
                         console.log( 'An error happened' + error );
                     }
                 );
+            }
+            setVisible(value){
+                this.visible = value;
+            }
+            setWireframe(value){
+                this.solid.visible = value;
             }
             setColor(hexColor) {
                 this.color = hexColor;
