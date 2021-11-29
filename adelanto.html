@@ -732,6 +732,7 @@
                 this.buildings.push(new Building(-35, 175, 90));
 
                 //Agregando una lampara
+                this.buildings.push(new SpotLight(48, 12, 15))
                 this.buildings.push(new Lamp(45, 17, 180));
 
                 let geometry = new THREE.BoxGeometry(470, 1, 300);
@@ -1058,11 +1059,11 @@
         }
 
         class SpotLight extends THREE.SpotLight {
-            constructor(color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0, decay = 1) {
+            constructor( x = 0, y = 0, z = 0, color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0, decay = 1) {
                 super(color, intensity, distance, angle, penumbra, decay);
                 this.angleDeg = angle * 180 / Math.PI;
                 this.strColor = color;
-                this.position.set(48, 12, 15);
+                this.position.set(x, y, z); //(48, 12 15)
             }
             setColor(strColor) {
                 this.color.setHex(strColor);
