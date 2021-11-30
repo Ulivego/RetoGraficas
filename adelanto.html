@@ -487,9 +487,24 @@
                 const loader = new OBJLoader();
                 // load a resource
                 const model = this;
+                // lod
+                const lod = new THREE.LOD();
                 loader.load(objFileName,
                     // called when resource is loaded
                     function (object) { 
+
+                        // Geometry
+                        const geometryLow = new THREE.BoxGeometry(20, 20, 20);
+                        const material = new THREE.MeshPhongMaterial({color: model.color});
+                        const materialWire = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor});
+                        // LOW
+                        model.low = new THREE.Group();
+                        model.low.solid = new THREE.Mesh(geometryLow, material);
+                        model.low.wire = new THREE.Mesh(geometryLow, materialWire);
+                        //CHILDREN
+                        model.low.add(model.low.solid);
+                        model.low.add(model.low.wire);
+
                         // SOLID
                         object.traverse(function(child) {
                             if (child.isMesh) {
@@ -509,8 +524,13 @@
                         // CHILDREN
                         model.add(model.solid);
                         model.add(model.wire);
-                        scene.add(model);
-                        model.setOnFloor();
+
+                        // CHILDREN
+                        lod.addLevel(model.low, 50);
+                        lod.addLevel(model, 1);
+
+                        scene.add(lod);
+                        //model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
