@@ -487,25 +487,9 @@
                 const loader = new OBJLoader();
                 // load a resource
                 const model = this;
-                // lod
-                //const lod = new THREE.LOD();
                 loader.load(objFileName,
                     // called when resource is loaded
                     function (object) { 
-
-                        /*// Geometry
-                        const geometryLow = new THREE.BoxGeometry(20, 20, 20);
-                        const material = new THREE.MeshPhongMaterial({color: model.color});
-                        const materialWire = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor});
-                        // LOW
-                        model.low = new THREE.Group();
-                        model.low.solid = new THREE.Mesh(geometryLow, material);
-                        model.low.wire = new THREE.Mesh(geometryLow, materialWire);
-                        //CHILDREN
-                        model.low.add(model.low.solid);
-                        model.low.add(model.low.wire);*/
-
-                        //model.high = new THREE.Group();
                         // SOLID
                         object.traverse(function(child) {
                             if (child.isMesh) {
@@ -526,13 +510,7 @@
                         model.add(model.solid);
                         model.add(model.wire);
 
-                        // CHILDREN
-                        //lod.addLevel(model.low, 150);
-                        //lod.addLevel(model, 1);
-
                         scene.add(model);
-                        //model.low.position.set(model.x, model.y, model.z);
-                        //model.high.position.set(model.x, model.y, model.z);
                         model.setOnFloor();
                     },
                         // called when loading is in progresses
@@ -576,7 +554,7 @@
                 this.doubleSide = false;
                 this.rotate = false;
                 // Geometry
-                const geometryLow = new THREE.BoxGeometry(20, 20, 20);
+                const geometryLow = new THREE.BoxGeometry(20, 25, 20);
                 const geometryHigh = new Building(this.x, this.z, this.dir);
                 const material = new THREE.MeshPhongMaterial({color: this.color});
                 const materialWire = new THREE.MeshPhongMaterial({wireframe: true, color: this.wireColor});
@@ -591,7 +569,7 @@
                 this.high = geometryHigh;
 
                 // CHILDREN
-                this.addLevel(this.low, 200);
+                this.addLevel(this.low, 250);
                 this.addLevel(this.high, 1);
 
                 this.setOnFloor();
