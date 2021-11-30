@@ -526,11 +526,11 @@
                         model.add(model.wire);
 
                         // CHILDREN
-                        lod.addLevel(model.low, 50);
+                        lod.addLevel(model.low, 150);
                         lod.addLevel(model, 1);
 
                         scene.add(lod);
-                        //model.setOnFloor();
+                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
