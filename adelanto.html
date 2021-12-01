@@ -26,10 +26,12 @@
         "use strict";
 
         let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data, trafficLightReady, scenary;
+        let camera1, camera2, camera3, camera4;
         let semaforos = [];
         let lucesSemaforos = [];
         let ambientLight, directionalLight, skyBox, skyBoxNight, spotLight, pointLight, night = true;
         let redLightColor = 0xff0019, yellowLightColor = 0xfffb00, greenLightColor = 0x0a6104, offLightColor = 0x242020;
+        window.multiview = false;
         
         function init(event) {
             // RENDERER ENGINE
@@ -38,6 +40,7 @@
             renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
             renderer.setClearColor(new THREE.Color(0, 0, 0));
             renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setScissorTest(true);
             document.body.appendChild(renderer.domElement);
             
             // SCENE
@@ -55,8 +58,16 @@
             directionalLight = new DirectionalLight();
 
             // CAMERA
-            camera = new Camera();
-            camera.setTrafficCamera();
+            /*camera = new Camera();
+            camera.setTrafficCamera();*/
+            camera1 = new Camera();
+            camera1.setTrafficCamera(); //Traffic
+            camera2 = new Camera();
+            camera2.setTop(); //Top
+            camera3 = new Camera();
+            camera3.setFront(); // Front
+            camera4 = new Camera();
+            camera4.setPerspective(); // Perspective
 
             // SCENE GRAPH
             scene.add(scenary);
@@ -77,27 +88,27 @@
             guiSceneMenu.add(scenary.axes, "visible").setValue(scenary.axes.visible).name("World Axes").listen().onChange(function(value) {
                 scenary.axes.setVisible(value);
             });
-            
             guiSceneMenu.add(scenary, "showWireframe").setValue(scenary.showWireframe).name("Wireframe").listen().onChange(function(value) {
                 scenary.changeWireframe(value);
             });
-            
+            guiSceneMenu.add(window, "multiview").setValue(window.multiview).name("Multiview").listen().onChange(function(value) {   
+            });
             guiSceneMenu.open();
             // CAMERA-MENU
             const guiCameraMenu = gui.addFolder("Camera Menu")
-            guiCameraMenu.add(camera.orbitControls, "autoRotate").setValue(false).name("Rotate Camera").listen().onChange(value => {
-                camera.setAutoRotate(value);
+            guiCameraMenu.add(camera1.orbitControls, "autoRotate").setValue(false).name("Rotate Camera").listen().onChange(value => {
+                camera1.setAutoRotate(value);
             });
-            guiCameraMenu.add(camera.viewTypes, "top").setValue(camera.viewTypes["top"]).name("Top View").listen().onChange(value => {
-                camera.setTop();
+            guiCameraMenu.add(camera1.viewTypes, "top").setValue(camera1.viewTypes["top"]).name("Top View").listen().onChange(value => {
+                camera1.setTop();
             });
-            guiCameraMenu.add(camera.viewTypes, "front").setValue(camera.viewTypes["front"]).name("Front View").listen().onChange(value => {
-                camera.setFront();
+            guiCameraMenu.add(camera1.viewTypes, "front").setValue(camera1.viewTypes["front"]).name("Front View").listen().onChange(value => {
+                camera1.setFront();
             });
-            guiCameraMenu.add(camera.viewTypes, "side").setValue(camera.viewTypes["side"]).name("Side View").listen().onChange(value => {
-                camera.setSide();
+            guiCameraMenu.add(camera1.viewTypes, "side").setValue(camera1.viewTypes["side"]).name("Side View").listen().onChange(value => {
+                camera1.setSide();
             });
-            // DIRECTIONAL-LIGHT-MENU
+            //LIGHT-MENU
             const guiDirectionalLightMenu = gui.addFolder("Lights Menu");
             guiDirectionalLightMenu.add(directionalLight, "visible").name("Day").setValue(directionalLight.visible).listen().onChange(function(value) {
                 night = !value;
@@ -108,28 +119,20 @@
                 ambientLight.visible = !ambientLight.visible
                     
             });
-            guiDirectionalLightMenu.add(directionalLight.position, "x").name("x").min(-10).max(10).step(0.1).setValue(0).listen().onChange(function(value) {
-
-            });
-            guiDirectionalLightMenu.addColor(directionalLight, "strColor").name("Color").setValue(directionalLight.strColor).listen().onChange(function(value) {
-                directionalLight.setColor(value);
-            });
-            guiDirectionalLightMenu.add(directionalLight, "intensity").name("Intensity").min(0).max(1).step(0.1).setValue(directionalLight.intensity).listen().onChange(function(value) {
-
-            });
+            guiDirectionalLightMenu.add(directionalLight, "intensity").name("Intensity").min(0).max(1).step(0.1).setValue(directionalLight.intensity)
             
-            guiCameraMenu.add(camera.viewTypes, "inModel").setValue(camera.viewTypes["inModel"]).name("Model View").listen().onChange(value => {
+            guiCameraMenu.add(camera1.viewTypes, "inModel").setValue(camera1.viewTypes["inModel"]).name("Model View").listen().onChange(value => {
                 const carID = data.frames[0].cars[0].id;
                 let car = scene.getObjectByName(carID);
                 if(car){
-                    camera.setInModel(car);
+                    camera1.setInModel(car);
                 }
             });
-            guiCameraMenu.add(camera.viewTypes, "perspective").setValue(camera.viewTypes["perspective"]).name("Perspective View").listen().onChange(value => {
-                camera.setPerspective();
+            guiCameraMenu.add(camera1.viewTypes, "perspective").setValue(camera1.viewTypes["perspective"]).name("Perspective View").listen().onChange(value => {
+                camera1.setPerspective();
             });
-            guiCameraMenu.add(camera.viewTypes, "traffic").setValue(camera.viewTypes["traffic"]).name("Traffic Camera").listen().onChange(value => {
-                camera.setTrafficCamera();
+            guiCameraMenu.add(camera1.viewTypes, "traffic").setValue(camera1.viewTypes["traffic"]).name("Traffic Camera").listen().onChange(value => {
+                camera1.setTrafficCamera();
             });
 
             // READ JSON FILE
@@ -177,7 +180,7 @@
 
         function renderLoop() {
             stats.begin();
-            renderer.render(scene, camera); // DRAW THE SCENE GRAPH
+            renderer.render(scene, camera1); // DRAW THE SCENE GRAPH
             updateScene();
             stats.end();
             requestAnimationFrame(renderLoop);
@@ -191,8 +194,8 @@
                 skyBox.visible = true;
                 skyBoxNight.visible = false;
             }
-            if(camera.orbitControls.autoRotate){
-                camera.orbitControls.update()
+            if(camera1.orbitControls.autoRotate){
+                camera1.orbitControls.update()
             }
            if (dataReady){
                k = (k + 1) % data.frames.length;
@@ -205,8 +208,8 @@
                     if (car) {
                         car.setPosition(x, z);
                         car.setDirection(dir);
-                        if(i == 0 && camera.currentView == "inModel"){
-                            camera.setInModel(car);
+                        if(i == 0 && camera1.currentView == "inModel"){
+                            camera1.setInModel(car);
                         }
                     } else {
                         console.log("Error")
@@ -235,6 +238,41 @@
                 }
                 
            };
+           if(!window.multiview) {
+                camera1.aspect =  window.innerWidth / window.innerHeight;
+                camera1.updateProjectionMatrix();
+                renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+                renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+                renderer.render(scene, camera1);
+            } else {
+                 // CAMERA 1
+                camera1.aspect = window.innerWidth/2. /  (window.innerHeight/2);
+                camera1.updateProjectionMatrix();
+                renderer.setViewport(window.innerWidth/2., window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.setScissor(window.innerWidth/2., window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.render(scene, camera1);
+
+                // CAMERA 2
+                camera2.aspect = window.innerWidth/2. / (window.innerHeight/2);
+                camera2.updateProjectionMatrix();
+                renderer.setViewport(0, window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.setScissor(0, window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.render(scene, camera2);
+
+                // CAMERA 3
+                camera3.aspect = window.innerWidth/2. / (window.innerHeight/2);
+                camera3.updateProjectionMatrix();
+                renderer.setViewport(0, 0, window.innerWidth/2., window.innerHeight/2);
+                renderer.setScissor(0, 0, window.innerWidth/2., window.innerHeight/2);
+                renderer.render(scene, camera3);
+
+                // CAMERA 4
+                camera4.aspect = window.innerWidth/2. / (window.innerHeight/2);
+                camera4.updateProjectionMatrix();
+                renderer.setViewport(window.innerWidth/2, 0, window.innerWidth/2., window.innerHeight/2);
+                renderer.setScissor(window.innerWidth/2, 0, window.innerWidth/2., window.innerHeight/2);
+                renderer.render(scene, camera4);
+            }
         }
 
         function readTextFile(file, callback) {
@@ -253,9 +291,25 @@
         document.addEventListener("DOMContentLoaded", init);
 
         window.addEventListener("resize", () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);            
+            if(!window.multiview) {
+                camera1.aspect = window.innerWidth / window.innerHeight;
+                camera1.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            } else {
+                // CAMERA 1
+                camera1.aspect = window.innerWidth / 2. / (window.innerHeight / 2);
+                camera1.updateProjectionMatrix();
+                // CAMERA 2
+                camera2.aspect = window.innerWidth / 2. / (window.innerHeight / 2);
+                camera2.updateProjectionMatrix();
+                // CAMERA 3
+                camera3.aspect = window.innerWidth / 2. / (window.innerHeight / 2);
+                camera3.updateProjectionMatrix();
+                // CAMERA 4
+                camera4.aspect = window.innerWidth / 2. / (window.innerHeight / 2);
+                camera4.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }            
         }, false);
 
         class Axes extends THREE.AxesHelper {
@@ -1094,12 +1148,12 @@
                 this.rotate = false;
                 this.geometry = new THREE.BoxGeometry(size, size, size);
                 this.material = [
-                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_ft.png"), side: THREE.DoubleSide}),
-                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_bk.png"), side: THREE.DoubleSide}),
-                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_up.png"), side: THREE.DoubleSide}),
-                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_dn.png"), side: THREE.DoubleSide}),
-                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_rt.png"), side: THREE.DoubleSide}),
-                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_lf.png"), side: THREE.DoubleSide})
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/SkyNight_Front.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/SkyNight_Back.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/SkyNight_Top.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/SkyNight_Bottom.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/SkyNight_Right.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/SkyNight_Left.png"), side: THREE.DoubleSide})
                 ];
                 this.scale.set(50, 50, 50);
             }
