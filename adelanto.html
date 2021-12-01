@@ -58,8 +58,6 @@
             directionalLight = new DirectionalLight();
 
             // CAMERA
-            /*camera = new Camera();
-            camera.setTrafficCamera();*/
             camera1 = new Camera();
             camera1.setTrafficCamera(); //Traffic
             camera2 = new Camera();
@@ -87,9 +85,6 @@
             const guiSceneMenu = gui.addFolder("Scene Menu");
             guiSceneMenu.add(scenary.axes, "visible").setValue(scenary.axes.visible).name("World Axes").listen().onChange(function(value) {
                 scenary.axes.setVisible(value);
-            });
-            guiSceneMenu.add(scenary, "showWireframe").setValue(scenary.showWireframe).name("Wireframe").listen().onChange(function(value) {
-                scenary.changeWireframe(value);
             });
             guiSceneMenu.add(window, "multiview").setValue(window.multiview).name("Multiview").listen().onChange(function(value) {   
             });
@@ -248,15 +243,15 @@
                  // CAMERA 1
                 camera1.aspect = window.innerWidth/2. /  (window.innerHeight/2);
                 camera1.updateProjectionMatrix();
-                renderer.setViewport(window.innerWidth/2., window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
-                renderer.setScissor(window.innerWidth/2., window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.setViewport(0, window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.setScissor(0, window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
                 renderer.render(scene, camera1);
 
                 // CAMERA 2
                 camera2.aspect = window.innerWidth/2. / (window.innerHeight/2);
                 camera2.updateProjectionMatrix();
-                renderer.setViewport(0, window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
-                renderer.setScissor(0, window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.setViewport(window.innerWidth/2., window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
+                renderer.setScissor(window.innerWidth/2., window.innerHeight/2, window.innerWidth/2., window.innerHeight/2);
                 renderer.render(scene, camera2);
 
                 // CAMERA 3
@@ -398,7 +393,6 @@
                         // CHILDREN
                         model.add(model.solid);
                         model.add(model.wire);
-                        //model.add(new Berd(x, z, 0, model));
                         scene.add(model);
                         model.setOnFloor();
                                 
@@ -516,7 +510,6 @@
                 this.loadOBJModel(objFileName);
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
-                //this.setOnFloor();
             }
             setWireframe(value = true) {
                 this.solid.setVisible(value);
@@ -558,7 +551,6 @@
                         model.add(model.wire);
 
                         scene.add(model);
-                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -577,11 +569,6 @@
                 } else {
                     this.solid.material.side = THREE.FrontSide;
                 }
-            }
-            setOnFloor() {
-                this.solid.geometry.computeBoundingBox();
-                const bBox = this.solid.geometry.boundingBox;
-                this.position.y = -bBox.min.y;
             }
             setDirection(dir) {
                 this.theta = dir;
@@ -655,10 +642,6 @@
                 this.color = hexColor;
                 this.solid.material.color.setHex(hexColor);
             }
-            setWireColor(hexColor) {
-                this.wireColor = hexColor;
-                this.wire.material.color.setHex(hexColor);
-            }
             loadOBJModel(objFileName) {
                 // instantiate a loader
                 const loader = new OBJLoader();
@@ -693,14 +676,11 @@
                                 child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor});
                             }
                         });
-                        //model.rotation.y = Math.PI;
                         model.scale.set(0.5, 0.5, 0.5);
                         // CHILDREN
                         model.add(model.solid);
-                        //model.add(model.wire);
                         trafficLightReady = true;
                         scene.add(model);
-                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -719,11 +699,6 @@
                 } else {
                     this.solid.material.side = THREE.FrontSide;
                 }
-            }
-            setOnFloor() {
-                this.solid.geometry.computeBoundingBox();
-                const bBox = this.solid.geometry.boundingBox;
-                this.position.y = -bBox.min.y;
             }
         }
 
@@ -750,8 +725,7 @@
                 this.buildings.push(new BuildingLod(-270, 35, 180));
                 this.buildings.push(new BuildingLod(-330, 35, 180));
                 //
-                //this.buildings.push(new Building(-35, 35, 180));
-                this.buildings.push(new GasStation(-50, 45, 270));
+                this.buildings.push(new GasStation(-50, 45, 270, 0xff6700));
                 this.buildings.push(new BuildingLod(-120, 35, 180));
                 this.buildings.push(new BuildingLod(-180, 35, 180));
                 this.buildings.push(new BuildingLod(-240, 35, 180));
@@ -764,7 +738,6 @@
                 this.buildings.push(new BuildingLod(250, -35))
                 this.buildings.push(new BuildingLod(310, -35))
                 //
-                //this.buildings.push(new Building(35, -35));
                 this.buildings.push(new GasStation(35, -45, 180));
                 this.buildings.push(new BuildingLod(100, -35));
                 this.buildings.push(new BuildingLod(160, -35));
@@ -783,9 +756,6 @@
                 this.buildings.push(new BuildingLod(-155, -35));
                 this.buildings.push(new BuildingLod(-215, -35));
                 this.buildings.push(new BuildingLod(-275, -35));
-
-                //Nuevos edificios 
-                //los de la calle nueva cera de enfrente lado derecho
 
                 //los de la calle nueva cera de enfrente lado izq
                 this.buildings.push(new BuildingLod(35, -90, 270));
@@ -851,6 +821,20 @@
                     }
                 }
 
+                //Berd
+                this.buildings.push(new Berd(700, 0, 270));
+                this.buildings.push(new Berd(-700, 0, 90));
+                this.buildings.push(new Berd(0, 700, 180));
+                this.buildings.push(new Berd(0, -700, 0));
+
+                //Tec
+                let tecGeometry = new THREE.BoxGeometry(250, 25, 280);
+                let materialTec = new THREE.MeshPhongMaterial({color: 0x0000ff, side: THREE.DoubleSide});
+                let tec = new THREE.Mesh(tecGeometry, materialTec);
+                tec.position.set(150, 10, -338)
+                this.buildings.push(tec);
+
+                //Banquetas
                 let geometry = new THREE.BoxGeometry(475, 1, 475);
                 const texture = new THREE.TextureLoader().load("./assets/street.jpg");
                 texture.wrapS = THREE.RepeatWrapping;
@@ -925,10 +909,7 @@
                 this.add(this.axes);
                 this.add(this.floor);
 
-
-                //Agregando una lampara
                 // Aviacion
-
                 const lightIntensity = this.lightIntensity
                 this.buildings.push(new Lamp(30, 4.5, 0));
                 this.lights.push(new SpotLight(30, 10, 4.5, 0xf8d879, lightIntensity, 0, 60, 1));
@@ -986,11 +967,6 @@
 
                 for(let i = 0; i < this.lights.length; i++) {
                     this.add(this.lights[i]);
-                }
-            }
-            changeWireframe(value = false) {
-                for (var i = 0; i < this.children.length; i = i+1) {
-                    this.children[i].material.wireframe = value;
                 }
             }
         }
@@ -1133,11 +1109,6 @@
                     this.material.side = THREE.FrontSide;
                 }
             }
-            setOnFloor() {
-                this.geometry.computeBoundingBox();
-                const bBox = this.geometry.boundingBox;
-                this.position.y = -bBox.min.y;
-            }
         }
 
         class SkyBoxNight extends THREE.Mesh {
@@ -1165,21 +1136,16 @@
                     this.material.side = THREE.FrontSide;
                 }
             }
-            setOnFloor() {
-                this.geometry.computeBoundingBox();
-                const bBox = this.geometry.boundingBox;
-                this.position.y = -bBox.min.y;
-            }
         }
 
         //Testing adding gas stations
         class GasStation extends THREE.Group {
-            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/newGasStation.obj", y = -46) {
+            constructor(x = 0, z = 0, dir = 0, color = 0x119977, objFileName = "./assets/newGasStation.obj", y = -46) {
                 super();
                 this.x = x;
                 this.z = z;
                 this.position.set(x, y, z);
-                this.color = 0x119977;
+                this.color = color;
                 this.wireColor = 0xffffff;
                 this.doubleSide = false;
                 this.rotate = false;
@@ -1187,10 +1153,6 @@
                 this.loadOBJModel(objFileName);
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
-            }
-            setColor(hexColor) {
-                this.color = hexColor;
-                this.solid.material.color.setHex(hexColor);
             }
             loadOBJModel(objFileName) {
                 // instantiate a loader
@@ -1220,7 +1182,6 @@
                         model.add(model.solid);
                         model.add(model.wire);
                         scene.add(model);
-                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -1282,7 +1243,6 @@
                         model.add(model.solid);
                         model.add(model.wire);
                         scene.add(model);
-                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -1376,7 +1336,6 @@
                         model.add(model.solid);
                         model.add(model.wire);
                         scene.add(model);
-                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -1437,7 +1396,6 @@
                         model.add(model.solid);
                         model.add(model.wire);
                         scene.add(model);
-                        model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -1456,12 +1414,12 @@
         }
 
         class Berd extends THREE.Group {
-            constructor(x = 0, z = 0, dir = 0, model, objFileName = "./assets/berd.obj", y = -4.8) {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/berd.obj", y = -4.8) {
                 super();
                 this.x = x;
                 this.z = z;
                 this.position.set(x, y, z);
-                this.color = 0x444444;
+                this.color = 0xff0000;
                 this.wireColor = 0xffffff;
                 this.doubleSide = false;
                 this.rotate = false;
@@ -1474,7 +1432,7 @@
                 // instantiate a loader
                 const loader = new OBJLoader();
                 // load a resource
-                //const model = this;
+                const model = this;
                 loader.load(objFileName,
                     // called when resource is loaded
                     function (object) { 
@@ -1492,12 +1450,11 @@
                                 child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor, side: THREE.FrontSide});
                             }
                         });
-                        model.scale.set(4, 4, 4);
+                        model.scale.set(100, 100, 100);
                         // CHILDREN
                         model.add(model.solid);
-                        model.add(model.wire);
-                        //scene.add(model);
-                        //model.setOnFloor();
+                        //model.add(model.wire);
+                        scene.add(model);
                     },
                         // called when loading is in progresses
                     function (xhr) {
@@ -1512,6 +1469,11 @@
             setDirection(dir) {
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
+            }
+            setPosition(x, z, y) {
+                this.x = x;
+                this.z = z;
+                this.position.set(x, y, z);
             }
         }
 
