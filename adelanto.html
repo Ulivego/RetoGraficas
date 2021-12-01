@@ -25,7 +25,7 @@
 
         "use strict";
 
-        let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data, trafficLightReady;
+        let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data, trafficLightReady, scenary;
         let semaforos = [];
         let ambientLight, directionalLight, skyBox, spotLight, pointLight;
         
@@ -42,7 +42,7 @@
             scene = new THREE.Scene();
 
             // MODELS
-            const scenary = new Scenary();
+            scenary = new Scenary();
 
             // SKYBOX
             skyBox = new SkyBox(25);
@@ -118,6 +118,7 @@
             });
             */
             // AMBIENTLIGHT-MENU
+            /*
             const guiAmbientLightMenu = gui.addFolder("AmbientLight Menu");
             guiAmbientLightMenu.add(ambientLight, "visible").name("On").setValue(ambientLight.visible).listen().onChange(function(value) {
 
@@ -128,10 +129,21 @@
             guiAmbientLightMenu.add(ambientLight, "intensity").name("Intensity").min(0).max(1).step(0.1).setValue(ambientLight.intensity).listen().onChange(function(value) {
 
             });
+            */
             // DIRECTIONAL-LIGHT-MENU
             const guiDirectionalLightMenu = gui.addFolder("DirectionalLight Menu");
             guiDirectionalLightMenu.add(directionalLight, "visible").name("On").setValue(directionalLight.visible).listen().onChange(function(value) {
-
+                if(directionalLight.visible){
+                    for(let i = 1; i < 16; i+=2){
+                        scenary.buildings[scenary.buildings.length - i].setIntensity(0);
+                    }
+                    ambientLight.visible = true;
+                } else{
+                    for(let i = 1; i < 16; i+=2){
+                        scenary.buildings[scenary.buildings.length - i].setIntensity(0.5);
+                    }
+                    ambientLight.visible = false;
+                }
             });
             guiDirectionalLightMenu.add(directionalLight.position, "x").name("x").min(-10).max(10).step(0.1).setValue(0).listen().onChange(function(value) {
 
@@ -271,7 +283,7 @@
         }, false);
 
         class Axes extends THREE.AxesHelper {
-            constructor(size = 10, visible = true) {
+            constructor(size = 10, visible = false) {
                 super(size);
                 this.size = size;
                 this.visible = visible;
@@ -356,7 +368,7 @@
                         // CHILDREN
                         model.add(model.solid);
                         model.add(model.wire);
-                        model.add(new Berd(x, z, 0, model));
+                        //model.add(new Berd(x, z, 0, model));
                         scene.add(model);
                         model.setOnFloor();
                                 
@@ -780,33 +792,6 @@
                 this.buildings.push(new Lamp(-90, -4.5, 180));
                 this.buildings.push(new Lamp(-150, 4.5, 0));
                 this.buildings.push(new Lamp(-210, -4.5, 180));
-
-                // Ramon Corona
-                this.buildings.push(new Lamp(4.5, 30, 90));
-                //this.buildings.push(new PointLight(4.5, 10, 30, 0xf8d879));
-                this.buildings.push(new SpotLight(4.5, 10, 30, 0xf8d879, 0.5, 0, 60, 1));
-                //x = 0, y = 0, z = 0, color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0,  decay = 1
-                this.buildings.push(new Lamp(-4.5, 90, 270));
-                this.buildings.push(new SpotLight(-4.5, 10, 90, 0xf8d879, 0.5, 0, 60, 1));
-               // this.buildings.push(new PointLight(-4.5, 10, 90, 0xf8d879));
-                this.buildings.push(new Lamp(4.5, 150, 90));
-                this.buildings.push(new SpotLight(4.5, 10, 150, 0xf8d879, 0.5, 0, 60, 1));
-                //this.buildings.push(new PointLight(4.5, 10, 150, 0xf8d879));
-                this.buildings.push(new Lamp(-4.5, 210, 270));
-                this.buildings.push(new SpotLight(-4.5, 10, 210, 0xf8d879, 0.5, 0, 60, 1));
-                //this.buildings.push(new PointLight(-4.5, 10, 210, 0xf8d879));
-                this.buildings.push(new Lamp(4.5, -30, 90));
-                this.buildings.push(new SpotLight(4.5, 10, -30, 0xf8d879, 0.5, 0, 60, 1));
-                //this.buildings.push(new PointLight(4.5, 10, -30, 0xf8d879));
-                this.buildings.push(new Lamp(-4.5, -90, 270));
-                this.buildings.push(new SpotLight(-4.5, 10, -90, 0xf8d879, 0.5, 0, 60, 1));
-                //this.buildings.push(new PointLight(-4.5, 10, -90, 0xf8d879));
-                this.buildings.push(new Lamp(4.5, -150, 90));
-                this.buildings.push(new SpotLight(4.5, 10, -150, 0xf8d879, 0.5, 0, 60, 1));
-                //this.buildings.push(new PointLight(4.5, 10, -150, 0xf8d879));
-                this.buildings.push(new Lamp(-4.5, -210, 270));
-                this.buildings.push(new SpotLight(-4.5, 10, -210, 0xf8d879, 0.5, 0, 60, 1));
-                //this.buildings.push(new PointLight(-4.5, 10, -210, 0xf8d879));
                 
                 //---Panteón---
                 this.buildings.push(new Gate(25, 120, 270)); //Gate Obj
@@ -926,6 +911,34 @@
                 // CHILDREN
                 this.add(this.axes);
                 this.add(this.floor);
+
+                // Ramon Corona
+                this.buildings.push(new Lamp(4.5, 30, 90));
+                //this.buildings.push(new PointLight(4.5, 10, 30, 0xf8d879));
+                this.buildings.push(new SpotLight(4.5, 10, 30, 0xf8d879, 0.5, 0, 60, 1));
+                //x = 0, y = 0, z = 0, color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0,  decay = 1
+                this.buildings.push(new Lamp(-4.5, 90, 270));
+                this.buildings.push(new SpotLight(-4.5, 10, 90, 0xf8d879, 0.5, 0, 60, 1));
+               // this.buildings.push(new PointLight(-4.5, 10, 90, 0xf8d879));
+                this.buildings.push(new Lamp(4.5, 150, 90));
+                this.buildings.push(new SpotLight(4.5, 10, 150, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(4.5, 10, 150, 0xf8d879));
+                this.buildings.push(new Lamp(-4.5, 210, 270));
+                this.buildings.push(new SpotLight(-4.5, 10, 210, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(-4.5, 10, 210, 0xf8d879));
+                this.buildings.push(new Lamp(4.5, -30, 90));
+                this.buildings.push(new SpotLight(4.5, 10, -30, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(4.5, 10, -30, 0xf8d879));
+                this.buildings.push(new Lamp(-4.5, -90, 270));
+                this.buildings.push(new SpotLight(-4.5, 10, -90, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(-4.5, 10, -90, 0xf8d879));
+                this.buildings.push(new Lamp(4.5, -150, 90));
+                this.buildings.push(new SpotLight(4.5, 10, -150, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(4.5, 10, -150, 0xf8d879));
+                this.buildings.push(new Lamp(-4.5, -210, 270));
+                this.buildings.push(new SpotLight(-4.5, 10, -210, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(-4.5, 10, -210, 0xf8d879));
+
                 for(let i = 0; i < this.buildings.length; i++) {
                     this.add(this.buildings[i]);
                 }
@@ -1028,7 +1041,7 @@
         }
 
         class AmbientLight extends THREE.AmbientLight {
-            constructor(color = 0xFFFFFF, intensity = 0.5) {
+            constructor(color = 0xFFFFFF, intensity = 0.4) {
                 super(color, intensity);
                 this.visible = false;
                 this.strColor = color;
@@ -1222,6 +1235,9 @@
             }
             setAngle(angleDeg) {
                 this.angle = angleDeg * Math.PI / 180;
+            }
+            setIntensity(value) {
+                this.intensity = value;
             }
         }
 
