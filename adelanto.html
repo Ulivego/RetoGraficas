@@ -27,7 +27,7 @@
 
         let renderer, scene, camera, orbitControls, stats, gui, dataReady = false, k = 0, data, trafficLightReady;
         let semaforos = [];
-        let ambientLight, directionalLight, skyBox, spotLight;
+        let ambientLight, directionalLight, skyBox, spotLight, pointLight;
         
         function init(event) {
             // RENDERER ENGINE
@@ -50,9 +50,10 @@
             // LIGHTS
             ambientLight = new AmbientLight();
             directionalLight = new DirectionalLight();
+            //pointLight = new PointLight();
             
             //testing spotlight
-            spotLight = new SpotLight();
+            //spotLight = new SpotLight();
 
             // CAMERA
             camera = new Camera();
@@ -63,9 +64,10 @@
             scene.add(ambientLight);
             scene.add(directionalLight);
             scene.add(skyBox);
+            //scene.add(pointLight);
 
             //test
-            scene.add(spotLight);
+            //scene.add(spotLight);
 
             // SETUP STATS
             stats = new Stats();
@@ -79,11 +81,11 @@
             guiSceneMenu.add(scenary.axes, "visible").setValue(scenary.axes.visible).name("World Axes").listen().onChange(function(value) {
                 scenary.axes.setVisible(value);
             });
-            /*
+            
             guiSceneMenu.add(scenary, "showWireframe").setValue(scenary.showWireframe).name("Wireframe").listen().onChange(function(value) {
                 scenary.changeWireframe(value);
             });
-            */
+            
             guiSceneMenu.open();
             // CAMERA-MENU
             const guiCameraMenu = gui.addFolder("Camera Menu")
@@ -99,6 +101,22 @@
             guiCameraMenu.add(camera.viewTypes, "side").setValue(camera.viewTypes["side"]).name("Side View").listen().onChange(value => {
                 camera.setSide();
             });
+            // POINT-LIGHT-MENU
+            const guiPointLightMenu = gui.addFolder("PointLight Menu");
+            /*
+            guiPointLightMenu.add(pointLight, "visible").name("On").setValue(pointLight.visible).listen().onChange(function(value) {
+
+            });
+            guiPointLightMenu.add(pointLight.position, "y").name("y").min(0).max(3).step(0.1).setValue(pointLight.position.y).listen().onChange(function(value) {
+
+            });
+            guiPointLightMenu.addColor(pointLight, "strColor").name("Color").setValue(pointLight.strColor).listen().onChange(function(value) {
+                pointLight.setColor(value);
+            });
+            guiPointLightMenu.add(pointLight, "intensity").name("Intensity").min(0).max(1).step(0.1).setValue(pointLight.intensity).listen().onChange(function(value) {
+
+            });
+            */
             // AMBIENTLIGHT-MENU
             const guiAmbientLightMenu = gui.addFolder("AmbientLight Menu");
             guiAmbientLightMenu.add(ambientLight, "visible").name("On").setValue(ambientLight.visible).listen().onChange(function(value) {
@@ -132,14 +150,6 @@
                     camera.setInModel(car);
                 }
             });
-            /*
-            guiCameraMenu.add(camera.viewTypes, "closeToModel").setValue(camera.viewTypes["closeToModel"]).name("Close To Model View").listen().onChange(value => {
-                camera.setCloseToModel(model);
-            });
-            guiCameraMenu.add(camera.viewTypes, "focusOnModel").setValue(camera.viewTypes["focusOnModel"]).name("Focus On Model View").listen().onChange(value => {
-                camera.setFocusOnModel(model);
-            });
-            */
             guiCameraMenu.add(camera.viewTypes, "perspective").setValue(camera.viewTypes["perspective"]).name("Perspective View").listen().onChange(value => {
                 camera.setPerspective();
             });
@@ -342,11 +352,11 @@
                                 child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor});
                             }
                         });
-                        //model.rotation.y = Math.PI;
                         model.scale.set(1, 1, 1);
                         // CHILDREN
                         model.add(model.solid);
                         model.add(model.wire);
+                        model.add(new Berd(x, z, 0, model));
                         scene.add(model);
                         model.setOnFloor();
                                 
@@ -604,9 +614,6 @@
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
             }
-            setWireframe(value = true) {
-                this.solid.setVisible(value);
-            }
             setColor(hexColor) {
                 this.color = hexColor;
                 this.solid.material.color.setHex(hexColor);
@@ -692,16 +699,8 @@
                 this.showWireframe = false
 
                 //SE
-                //this.buildings.push(new BuildingLod(35, 35, 180));
-                //this.buildings.push(new BuildingLod(62.5, 35, 180));
-                //this.buildings.push(new BuildingLod(117.5, 35, 180));
-                //this.buildings.push(new BuildingLod(172.5, 35, 180));
-                //this.buildings.push(new BuildingLod(227.5, 35, 180));
                 this.buildings.push(new BuildingLod(282.5, 35, 180));
                 //
-                //this.buildings.push(new BuildingLod(90, 35, 180));
-                //this.buildings.push(new BuildingLod(145, 35, 180));
-                //this.buildings.push(new BuildingLod(200, 35, 180));
                 this.buildings.push(new BuildingLod(255, 35, 180));
                 this.buildings.push(new BuildingLod(305, 35, 180));
 
@@ -746,14 +745,8 @@
                 this.buildings.push(new BuildingLod(-215, -35));
                 this.buildings.push(new BuildingLod(-275, -35));
 
-                //Nuevos edificios //prueba #saludos #programando #aiuda
+                //Nuevos edificios 
                 //los de la calle nueva cera de enfrente lado derecho
-                /*
-                this.buildings.push(new BuildingLod(35, 65, 270));
-                this.buildings.push(new BuildingLod(35, 95, 270));
-                this.buildings.push(new BuildingLod(35, 125, 270));
-                this.buildings.push(new BuildingLod(35, 155, 270));
-                */
 
                 //los de la calle nueva cera de enfrente lado izq
                 this.buildings.push(new BuildingLod(35, -90, 270));
@@ -775,54 +768,87 @@
 
                 //Agregando una lampara
                 // Aviacion
-                //this.buildings.push(new SpotLight(46, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
                 this.buildings.push(new Lamp(30, 4.5, 0));
-                //this.buildings.push(new SpotLight(126, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                //this.buildings.push(new PointLight(30, 10, 4.5, 0xf8d879));
                 this.buildings.push(new Lamp(90, -4.5, 180));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                //this.buildings.push(new PointLight(90, 10, -4.5, 0xf8d879));
                 this.buildings.push(new Lamp(150, 4.5, 0));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                //this.buildings.push(new PointLight(150, 10, 4.5, 0xf8d879));
                 this.buildings.push(new Lamp(210, -4.5, 180));
-                //this.buildings.push(new SpotLight(46, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                //this.buildings.push(new PointLight(210, 10, -4.5, 0xf8d879));
                 this.buildings.push(new Lamp(-30, 4.5, 0));
-                //this.buildings.push(new SpotLight(126, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
                 this.buildings.push(new Lamp(-90, -4.5, 180));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
                 this.buildings.push(new Lamp(-150, 4.5, 0));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
                 this.buildings.push(new Lamp(-210, -4.5, 180));
 
                 // Ramon Corona
-                //this.buildings.push(new SpotLight(46, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
                 this.buildings.push(new Lamp(4.5, 30, 90));
-                //this.buildings.push(new SpotLight(126, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                //this.buildings.push(new PointLight(4.5, 10, 30, 0xf8d879));
+                this.buildings.push(new SpotLight(4.5, 10, 30, 0xf8d879, 0.5, 0, 60, 1));
+                //x = 0, y = 0, z = 0, color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0,  decay = 1
                 this.buildings.push(new Lamp(-4.5, 90, 270));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                this.buildings.push(new SpotLight(-4.5, 10, 90, 0xf8d879, 0.5, 0, 60, 1));
+               // this.buildings.push(new PointLight(-4.5, 10, 90, 0xf8d879));
                 this.buildings.push(new Lamp(4.5, 150, 90));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                this.buildings.push(new SpotLight(4.5, 10, 150, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(4.5, 10, 150, 0xf8d879));
                 this.buildings.push(new Lamp(-4.5, 210, 270));
-                //this.buildings.push(new SpotLight(46, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                this.buildings.push(new SpotLight(-4.5, 10, 210, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(-4.5, 10, 210, 0xf8d879));
                 this.buildings.push(new Lamp(4.5, -30, 90));
-                //this.buildings.push(new SpotLight(126, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                this.buildings.push(new SpotLight(4.5, 10, -30, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(4.5, 10, -30, 0xf8d879));
                 this.buildings.push(new Lamp(-4.5, -90, 270));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                this.buildings.push(new SpotLight(-4.5, 10, -90, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(-4.5, 10, -90, 0xf8d879));
                 this.buildings.push(new Lamp(4.5, -150, 90));
-                //this.buildings.push(new SpotLight(206, 8, 15, 0xFFFFFF, 0.7, 0, 60, 0.8))
+                this.buildings.push(new SpotLight(4.5, 10, -150, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(4.5, 10, -150, 0xf8d879));
                 this.buildings.push(new Lamp(-4.5, -210, 270));
+                this.buildings.push(new SpotLight(-4.5, 10, -210, 0xf8d879, 0.5, 0, 60, 1));
+                //this.buildings.push(new PointLight(-4.5, 10, -210, 0xf8d879));
                 
-                //Panteón, 0x119977;
-                this.buildings.push(new Gate(25, 120, 270)); //Gate
+                //---Panteón---
+                this.buildings.push(new Gate(25, 120, 270)); //Gate Obj
                 let wall = new THREE.BoxGeometry(2, 14.5, 105);
-                let wallMaterial = new THREE.MeshPhongMaterial({color: 0x119977, side: THREE.DoubleSide});
-
+                let wallMaterial = new THREE.MeshPhongMaterial({color: 0xE56717, side: THREE.DoubleSide});
+                //Paredes frontales
                 let paredFrontal = new THREE.Mesh(wall, wallMaterial);
                 paredFrontal.position.set(26, 0.5, 72.5); //mitad + 20
                 this.buildings.push(paredFrontal);
-
+                let paredFrontalDer = new THREE.Mesh(wall, wallMaterial);
+                paredFrontalDer.position.set(26, 0.5, 192.5);
+                this.buildings.push(paredFrontalDer);
+                //Pared trasera
+                let backWall = new THREE.BoxGeometry(2, 14.5, 224);
+                let paredTrasera = new THREE.Mesh(backWall, wallMaterial);
+                paredTrasera.position.set(231, 0.5, 132);
+                this.buildings.push(paredTrasera);
+                //Paredes laterales
                 let latWall = new THREE.BoxGeometry(205, 14.5, 2);
-                let paredLateral = new THREE.Mesh(latWall, wallMaterial);
-                paredLateral.position.set(129, 0.5, 21);
-                this.buildings.push(paredLateral);
+                let paredLateralIzq = new THREE.Mesh(latWall, wallMaterial);
+                paredLateralIzq.position.set(129, 0.5, 21);
+                this.buildings.push(paredLateralIzq);
+                let paredLateralDer = new THREE.Mesh(latWall, wallMaterial);
+                paredLateralDer.position.set(129, 0.5, 244);
+                this.buildings.push(paredLateralDer);
+                //Pasto
+                let ground = new THREE.BoxGeometry(205, 1.5, 222);
+                const grassTexture = new THREE.TextureLoader().load("./assets/grass.jpg");
+                grassTexture.wrapS = THREE.RepeatWrapping;
+                grassTexture.wrapT = THREE.RepeatWrapping;
+                grassTexture.repeat.set(20, 20);
+                let grass = new THREE.MeshPhongMaterial({map: grassTexture, side: THREE.DoubleSide});
+                let restingGround = new THREE.Mesh(ground, grass);
+                restingGround.position.set(128, 0, 132);
+                this.buildings.push(restingGround);
+                //Tumbas
+                for (let i = 0; i < 30; i++) {
+                    let x = Math.random() * (180 - 50) + 50;
+                    let z = Math.random() * (200 - 45) + 45;
+                    this.buildings.push(new Grave(x, z, 270));
+                }
+                
 
                 let geometry = new THREE.BoxGeometry(470, 1, 300);
                 const texture = new THREE.TextureLoader().load("./assets/street.jpg");
@@ -1004,6 +1030,7 @@
         class AmbientLight extends THREE.AmbientLight {
             constructor(color = 0xFFFFFF, intensity = 0.5) {
                 super(color, intensity);
+                this.visible = false;
                 this.strColor = color;
             }
             setColor(strColor) {
@@ -1014,6 +1041,7 @@
         class DirectionalLight extends THREE.DirectionalLight {
             constructor(color = 0xFFFFFF, intensity = 0.5) {
                 super(color, intensity);
+                this.visible = false;
                 this.strColor = color;
                 this.position.set(0, 99, 0);
             }
@@ -1030,12 +1058,12 @@
                 this.rotate = false;
                 this.geometry = new THREE.BoxGeometry(size, size, size);
                 this.material = [
-                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_ft.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_bk.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_up.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_dn.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_rt.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshPhongMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_lf.png"), side: THREE.DoubleSide})
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_ft.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_bk.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_up.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_dn.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_rt.png"), side: THREE.DoubleSide}),
+                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/sh_lf.png"), side: THREE.DoubleSide})
                         ];
                 this.scale.set(100, 100, 100);
             }
@@ -1070,16 +1098,9 @@
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
             }
-            setWireframe(value = true) {
-                this.solid.setVisible(value);
-            }
             setColor(hexColor) {
                 this.color = hexColor;
                 this.solid.material.color.setHex(hexColor);
-            }
-            setWireColor(hexColor) {
-                this.wireColor = hexColor;
-                this.wire.material.color.setHex(hexColor);
             }
             loadOBJModel(objFileName) {
                 // instantiate a loader
@@ -1121,14 +1142,6 @@
                     }
                 );
             }
-            setDoubleSide(value) {
-                this.doubleSide = value;
-                if(value) {
-                    this.solid.material.side = THREE.DoubleSide;
-                } else {
-                    this.solid.material.side = THREE.FrontSide;
-                }
-            }
             setDirection(dir) {
                 this.theta = dir;
                 this.rotation.y = dir * Math.PI / 180;
@@ -1137,7 +1150,7 @@
 
         //Testing adding lamps
         class Lamp extends THREE.Group {
-            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/lamp.obj", y = -20) {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/lamp.obj", y = -17) {
                 super();
                 this.x = x;
                 this.z = z;
@@ -1198,7 +1211,7 @@
         }
 
         class SpotLight extends THREE.SpotLight {
-            constructor( x = 0, y = 0, z = 0, color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0,  decay = 1) {
+            constructor(x = 0, y = 0, z = 0, color = 0xFFFFFF, intensity = 1, distance = 0, angle = Math.PI / 2, penumbra = 0,  decay = 1) {
                 super(color, intensity, distance, angle, penumbra, decay);
                 this.angleDeg = angle * 180 / Math.PI;
                 this.strColor = color;
@@ -1212,13 +1225,24 @@
             }
         }
 
+        class PointLight extends THREE.PointLight {
+            constructor(x = 0, y = 3, z = 0, color = 0xFFFFFF, intensity = 0.5) {
+                super(color, intensity);
+                this.strColor = color;
+                this.position.set(x, y, z);
+            }
+            setColor(strColor) {
+                this.color.setHex(strColor);
+            }
+        }
+
         class Gate extends THREE.Group {
             constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/gate.obj", y = -32) {
                 super();
                 this.x = x;
                 this.z = z;
                 this.position.set(x, y, z);
-                this.color = 0x119977;
+                this.color = 0xE56717;
                 this.wireColor = 0xffffff;
                 this.doubleSide = false;
                 this.rotate = false;
@@ -1256,6 +1280,127 @@
                         model.add(model.wire);
                         scene.add(model);
                         model.setOnFloor();
+                    },
+                        // called when loading is in progresses
+                    function (xhr) {
+                        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    },
+                        // called when loading has errors
+                    function (error) {
+                        console.log( 'An error happened' + error );
+                    }
+                );
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+        }
+
+        class Grave extends THREE.Group {
+            constructor(x = 0, z = 0, dir = 0, objFileName = "./assets/grave.obj", y = -4.8) {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, y, z);
+                this.color = 0x444444;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                const model = this;
+                loader.load(objFileName,
+                    // called when resource is loaded
+                    function (object) { 
+                        // SOLID
+                        object.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({color: model.color, side: THREE.FrontSide});
+                            }
+                        });
+                        model.solid = object;
+                        // WIRE
+                        model.wire = object.clone();
+                        model.wire.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor, side: THREE.FrontSide});
+                            }
+                        });
+                        //model.rotation.y = Math.PI;
+                        model.scale.set(2, 2, 2);
+                        // CHILDREN
+                        model.add(model.solid);
+                        model.add(model.wire);
+                        scene.add(model);
+                        model.setOnFloor();
+                    },
+                        // called when loading is in progresses
+                    function (xhr) {
+                        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    },
+                        // called when loading has errors
+                    function (error) {
+                        console.log( 'An error happened' + error );
+                    }
+                );
+            }
+            setDirection(dir) {
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+        }
+
+        class Berd extends THREE.Group {
+            constructor(x = 0, z = 0, dir = 0, model, objFileName = "./assets/berd.obj", y = -4.8) {
+                super();
+                this.x = x;
+                this.z = z;
+                this.position.set(x, y, z);
+                this.color = 0x444444;
+                this.wireColor = 0xffffff;
+                this.doubleSide = false;
+                this.rotate = false;
+                this.objFileName = objFileName;
+                this.loadOBJModel(objFileName);
+                this.theta = dir;
+                this.rotation.y = dir * Math.PI / 180;
+            }
+            loadOBJModel(objFileName) {
+                // instantiate a loader
+                const loader = new OBJLoader();
+                // load a resource
+                //const model = this;
+                loader.load(objFileName,
+                    // called when resource is loaded
+                    function (object) { 
+                        // SOLID
+                        object.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({color: model.color, side: THREE.FrontSide});
+                            }
+                        });
+                        model.solid = object;
+                        // WIRE
+                        model.wire = object.clone();
+                        model.wire.traverse(function(child) {
+                            if (child.isMesh) {
+                                child.material = new THREE.MeshPhongMaterial({wireframe: true, color: model.wireColor, side: THREE.FrontSide});
+                            }
+                        });
+                        model.scale.set(4, 4, 4);
+                        // CHILDREN
+                        model.add(model.solid);
+                        model.add(model.wire);
+                        //scene.add(model);
+                        //model.setOnFloor();
                     },
                         // called when loading is in progresses
                     function (xhr) {
