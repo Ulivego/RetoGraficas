@@ -99,7 +99,7 @@
             });
             // DIRECTIONAL-LIGHT-MENU
             const guiDirectionalLightMenu = gui.addFolder("Lights Menu");
-            guiDirectionalLightMenu.add(directionalLight, "visible").name("On").setValue(directionalLight.visible).listen().onChange(function(value) {
+            guiDirectionalLightMenu.add(directionalLight, "visible").name("Day").setValue(directionalLight.visible).listen().onChange(function(value) {
                 night = !value;
                 scenary.lights.forEach(light => {
                     light.visible = !light.visible
@@ -1094,13 +1094,13 @@
                 this.rotate = false;
                 this.geometry = new THREE.BoxGeometry(size, size, size);
                 this.material = [
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_ft.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_bk.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_up.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_dn.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_rt.png"), side: THREE.DoubleSide}),
-                         new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_lf.png"), side: THREE.DoubleSide})
-                        ];
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_ft.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_bk.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_up.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_dn.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_rt.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("./assets/texture/dark_lf.png"), side: THREE.DoubleSide})
+                ];
                 this.scale.set(50, 50, 50);
             }
             setDoubleSide(value) {
