@@ -198,12 +198,12 @@ class AvenueModel(ap.Model):
         lane = int(self.p.cars/8)
 
         # Cantidad de carros en cada carril
-        c_north = lane - 5
-        c_north2 = lane + 5
-        c_south = lane-1
-        c_south2 = lane+2
-        c_east = lane
-        c_east2 = lane-1
+        c_north = lane - 1
+        c_north2 = lane + 3
+        c_south = lane - 1
+        c_south2 = lane + 2
+        c_east = lane - 2
+        c_east2 = lane - 1
         c_west = lane
         c_west2 = self.p.cars - lane * 7
 
@@ -417,7 +417,6 @@ class AvenueModel(ap.Model):
                     self.semaphores[i].red_duration -= self.semaphores[i].carsInFront
 
             times[i] = [self.semaphores[i].red_duration, i]
-        print(times)
             
         # Ordenar descendentemente según su tiempo en rojo
         times.sort(key = self.smallerTime)
@@ -519,7 +518,7 @@ parameters = {
     'green': 0,             # Duración de la luz verde
     'yellow': 5,            # Duración de la luz amarilla
     'cars': 32,             # Número de autos en la simulación
-    'steps': 500,           # Número de pasos de la simulación
+    'steps': 1000,           # Número de pasos de la simulación
     'laneDis': 5,           # Distancia entre carriles
     'semaphores': 4,        # Cantidad de Semáforos en la simulación
     'crossDistance': 30     # Distancia del origen al inicio de cada carril
