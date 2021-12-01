@@ -421,6 +421,8 @@ class AvenueModel(ap.Model):
         # Ordenar descendentemente según su tiempo en rojo
         times.sort(key = self.smallerTime)
 
+        # print(times)
+
         # Guardar el orden en la cola
         for semaphore in times:
             self.semaphoreOrder.put(semaphore[1])
@@ -518,7 +520,7 @@ parameters = {
     'green': 0,             # Duración de la luz verde
     'yellow': 5,            # Duración de la luz amarilla
     'cars': 32,             # Número de autos en la simulación
-    'steps': 1000,           # Número de pasos de la simulación
+    'steps': 2000,           # Número de pasos de la simulación
     'laneDis': 5,           # Distancia entre carriles
     'semaphores': 4,        # Cantidad de Semáforos en la simulación
     'crossDistance': 30     # Distancia del origen al inicio de cada carril
