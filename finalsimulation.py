@@ -1,3 +1,10 @@
+'''
+Simulación de una avenida con paso peatonal
+
+En esta simulación se representa una avenida con dos carriles y un paso peatonal. 
+El tráfico se controla con dos semáforos que detienen a los autos en el paso peatonal.
+'''
+
 import queue
 import agentpy as ap
 import numpy as np
@@ -505,7 +512,7 @@ class AvenueModel(ap.Model):
           # Parse
           file.write(self.strFile)
 
-# Parametros de visualizacion
+# Parametros
 parameters = {
     'step_time': 0.1,       # Procentaje de área cubierta por árboles
     'size': 1000,           # Tamaño en metros de la avenida
